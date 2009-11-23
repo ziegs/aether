@@ -28,7 +28,7 @@ def main():
     print "error: bad input"
     sys.exit(1)
   
-  print tsv2csv(infile)
+  tsv2csv(infile)
 
 if __name__ == '__main__':
   main()
