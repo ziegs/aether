@@ -1,3 +1,4 @@
+Airline,AirlineID,Source,SourceID,Dest,DestID,Codeshare,Stops,Equipment
 0B,1542,AGP,1230,BBU,1650,,0,733
 0B,1542,ARW,1647,BBU,1650,,0,733
 0B,1542,ARW,1647,REU,1236,,0,733
