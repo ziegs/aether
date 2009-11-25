@@ -1,0 +1,28 @@
+CREATE FUNCTION AirportDistance(airport1 INT, airport2 INT) RETURNS FLOAT DETERMINISTIC
+BEGIN	RETURN (SELECT SQRT(POW((A1.latitude - A2.latitude), 2) + POW((A1.longitude - A2.longitude), 2))	AS Distance FROM Airports A1, Airports A2	WHERE A1.id = airport1 AND A2.id = airport2); 
+END
+
+CREATE FUNCTION TicketPrice(dist FLOAT, Stops INT, startRunways INT, endRunways INT) RETURNS FLOAT DETERMINISTIC
+BEGIN	RETURN ((dist*4.5/5.0) / LOG((stops+2)*100)) + 100 - 40*(stops) - endRunways*8 - startRunways*5;
+END
+
+DELIMITER \\
+DROP PROCEDURE IF EXISTS PopulateTicketPrices\\
+CREATE PROCEDURE PopulateTicketPrices()
+BEGIN
+	DECLARE done INT DEFAULT 0;
+	DECLARE dist FLOAT;
+	DECLARE SourceID, DestID, Stops, sRunways, eRunways INT;
+	DECLARE cur CURSOR FOR SELECT A1.ID, A2.ID, R.Stops, A1.numRunways, A2.numRunways FROM Routes R INNER JOIN Airports A1 ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID WHERE R.SourceID IS NOT NULL AND R.DestID IS NOT NULL;
+	OPEN cur;
+	REPEAT
+		FETCH cur INTO SourceID, DestID, Stops, sRunways, eRunways;
+		IF NOT done THEN
+			SET @dist = AirportDistance(SourceID, DestID);
+			SET @s = CONCAT("UPDATE Routes SET TicketPrice = '", TicketPrice(dist, Stops, sRunways, eRunways), "' WHERE SourceID = '", SourceID, "' AND DestID = '", DestID, "' AND Stops = '", Stops, "';");
+			PREPARE stmt FROM @s;
+			EXECUTE stmt;
+		END IF;
+	UNTIL done END REPEAT;
+	CLOSE cur;
+END\\
