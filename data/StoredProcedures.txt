@@ -42,9 +42,21 @@ BEGIN
 	SELECT * FROM Routes R INNER JOIN Airlines A ON R.AirlineID = A.ID WHERE R.DestID = Airport;
 END \\
 
+DROP PROCEDURE IF EXISTS DestinationsFromAirport\\
+CREATE PROCEDURE DestinationsFromAirport(IN Airport INT)
+BEGIN
+	SELECT * FROM Routes R INNER JOIN Airports A ON R.DestID = A.ID WHERE R.SourceID = Airport;
+END\\
+
 DROP FUNCTION IF EXISTS AirportDistance\\
 CREATE FUNCTION AirportDistance(airport1 INT, airport2 INT) RETURNS FLOAT DETERMINISTIC
 BEGIN	RETURN (SELECT SQRT(POW((A1.latitude - A2.latitude), 2) + POW((A1.longitude - A2.longitude), 2))	AS Distance FROM Airports A1, Airports A2	WHERE A1.id = airport1 AND A2.id = airport2); 
+END\\
+
+DROP FUNCTION IF EXISTS AirportTimeDifference\\
+CREATE FUNCTION AirportTimeDifference(Airport1 INT, Airport2 INT) RETURNS INT DETERMINISTIC
+BEGIN
+	RETURN (SELECT A1.Timezone - A2.Timezone FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2);
 END\\
 
 DROP FUNCTION IF EXISTS TicketPrice\\
@@ -71,3 +83,15 @@ BEGIN
 	UNTIL done END REPEAT;
 	CLOSE cur;
 END\\
+
+DROP PROCEDURE IF EXISTS AirportAtMaxElevation\\
+CREATE PROCEDURE AirportAtMaxElevation()
+BEGIN
+	SELECT * FROM Airports A WHERE A.Altitude >= ALL(SELECT Altitude FROM Airports);
+END \\
+
+DROP PROCEDURE IF EXISTS AirportAtMinElevation\\
+CREATE PROCEDURE AirportAtMinElevation()
+BEGIN
+	SELECT * FROM Airports A WHERE A.Altitude <= ALL(SELECT Altitude FROM Airports);
+END \\

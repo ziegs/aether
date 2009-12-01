@@ -7,3 +7,13 @@
 7. Draw arc between start/dest airports (TODO - larger join query), list in result area
 9. List in result area, draw destinations on map?
 9.b. List in result area, draw destinations on map?
+10. Place marker on map, highlight routes?, list in result area
+11. Place markers, highlight route, display distance on map, in result area
+12. Place markers, highlight route, display time on map, in result area
+13. 
+14. 
+15.
+16. Place markers, highlight routes, display in result area
+17.
+18.
+19. Place marker, display result in result area
