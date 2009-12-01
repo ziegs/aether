@@ -1,12 +1,57 @@
+DELIMITER \\
+
+DROP PROCEDURE IF EXISTS AllAirports\\
+CREATE PROCEDURE AllAirports()
+BEGIN
+	SELECT * FROM Airports;
+END\\
+
+DROP PROCEDURE IF EXISTS AllAirlines\\
+CREATE PROCEDURE AllAirlines()
+BEGIN
+	SELECT * FROM Airlines;
+END\\
+
+DROP PROCEDURE IF EXISTS AllRoutes\\
+CREATE PROCEDURE AllRoutes()
+BEGIN
+	SELECT * FROM Routes;
+END\\
+
+DROP PROCEDURE IF EXISTS AirportsAirlineServices\\
+CREATE PROCEDURE AirportsAirlineServices(IN Airline INT)
+BEGIN
+	SELECT A.* FROM ((SELECT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline) UNION DISTINCT (SELECT SourceID AS CIty FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
+END \\
+
+DROP PROCEDURE IF EXISTS RoutesAirlineServices\\
+CREATE PROCEDURE RoutesAirlineServices(IN Airline INT)
+BEGIN
+	SELECT * FROM Routes WHERE AirlineID = Airline;
+END \\
+
+DROP PROCEDURE IF EXISTS AirlinesLeavingAirport\\
+CREATE PROCEDURE AirlinesLeavingAirport(IN Airport INT)
+BEGIN
+	SELECT * FROM Routes R INNER JOIN Airlines A ON R.AirlineID = A.ID WHERE R.SourceID = Airport;
+END \\
+
+DROP PROCEDURE IF EXISTS AirlinesEnteringAirport\\
+CREATE PROCEDURE AirlinesEnteringAirport(IN Airport INT)
+BEGIN
+	SELECT * FROM Routes R INNER JOIN Airlines A ON R.AirlineID = A.ID WHERE R.DestID = Airport;
+END \\
+
+DROP FUNCTION IF EXISTS AirportDistance\\
 CREATE FUNCTION AirportDistance(airport1 INT, airport2 INT) RETURNS FLOAT DETERMINISTIC
 BEGIN	RETURN (SELECT SQRT(POW((A1.latitude - A2.latitude), 2) + POW((A1.longitude - A2.longitude), 2))	AS Distance FROM Airports A1, Airports A2	WHERE A1.id = airport1 AND A2.id = airport2); 
-END
+END\\
 
+DROP FUNCTION IF EXISTS TicketPrice\\
 CREATE FUNCTION TicketPrice(dist FLOAT, Stops INT, startRunways INT, endRunways INT) RETURNS FLOAT DETERMINISTIC
 BEGIN	RETURN ((dist*4.5/5.0) / LOG((stops+2)*100)) + 100 - 40*(stops) - endRunways*8 - startRunways*5;
-END
+END\\
 
-DELIMITER \\
 DROP PROCEDURE IF EXISTS PopulateTicketPrices\\
 CREATE PROCEDURE PopulateTicketPrices()
 BEGIN
