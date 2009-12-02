@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'sinatra'
 require 'haml'
+require 'json'
 require 'sass'
 require 'compass'
 require 'mysql'
