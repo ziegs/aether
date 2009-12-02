@@ -3,6 +3,10 @@
   %head
     %title aether
     %link{:href=>"/stylesheets/screen.css", :media=>"screen", :rel=>"stylesheet", :type=>"text/css"}
+    %script{ :src=>"http://www.google.com/jsapi?key=ABQIAAAANhns9HfwQK2FOiJknFe_RBQ1bmiFIOX-FukFLYVl-b0g3SpkNRQKTD1S460t8SmwYB44diqyQepOOQ", :type => "text/javascript"}
+    :javascript
+      google.load("maps", "2.x");
+      google.load("jquery", "1.3.2");
   %body
     .container
       #header
@@ -10,4 +14,18 @@
       #left_bar
         items
       #content
-        Lots o content!
+        Lots and lots of contentacular content.
+        #map
+    :javascript
+      $(document).ready(function(){
+        var map = new GMap2(document.getElementById('map'));
+        var ftWorth = new GLatLng(33,-97);
+        var ftWorthOptions = {title: 'Dallas-Ft. Worth'};
+        map.setCenter(ftWorth, 7);
+        var marker = new GMarker(ftWorth, ftWorthOptions);
+        GEvent.addListener(marker, 'click', function() {
+          marker.openInfoWindowHtml("THIS IS FOR YOU PARKER");
+        });
+        map.addOverlay(marker);
+      });
+          
