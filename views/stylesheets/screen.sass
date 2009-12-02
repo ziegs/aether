@@ -1,15 +1,17 @@
 @import base.sass
  
 +blueprint-typography("body")
+
 / +blueprint-utilities
 / +blueprint-grid
 / +blueprint-interaction
 / +blueprint-form
 
 body
-  +blueprint-typography
+  +blueprint-typography(true)
   .container
     +container
+    :width 99%
 #header
   +column(24)
 #left_bar
