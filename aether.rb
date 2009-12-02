@@ -21,3 +21,8 @@ end
 get '/' do
   haml :index
 end
+
+get '/ar' do
+  content_type 'text/json'
+  print params['id']
+end
