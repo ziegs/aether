@@ -1,1 +1,5 @@
-Read! - HPS
+Run 'ruby aether.rb', connect to 'localhost:4567'.
+
+index.haml handles generating html
+style.sass handles generating css
+aether.rb handles get/post commands using sinatra, will query the db, handle results
