@@ -6,20 +6,20 @@ require 'sass'
 require 'compass'
 require 'mysql'
 
-DB = Mysql::new("localhost", "parker", "local_password", "aether", 3306, nil, Mysql::CLIENT_MULTI_RESULTS)
+DB = Mysql::new("localhost", "parker", "det.ps", "aether", 3306, nil, Mysql::CLIENT_MULTI_RESULTS)
 DB.query_with_result=false
 
 queries = {}
-queries['1'] = 'AllAirports'
-queries['2'] = 'AllAirlines'
-queries['3'] = 'AllRoutes'
+queries['1'] = ['AllAirports',0]
+queries['2'] = ['AllAirlines',0]
+queries['3'] = ['AllRoutes',0]
 #queries['4'] = 'AllAirlines'
-queries['5'] = 'AirportsAirlineServices'
+queries['5'] = ['AirportsAirlineServices',1]
 #queries['6'] = 'AllAirlines'
-queries['7'] = 'RoutesAirlineServices'
+queries['7'] = ['RoutesAirlineServices',1]
 #queries['8'] = 'AllAirlines'
-queries['9a'] = 'AirlinesLeavingAirport'
-queries['9b'] = 'AirlinesEnteringAirport'
+queries['9a'] = ['AirlinesLeavingAirport',1]
+queries['9b'] = ['AirlinesEnteringAirport',1]
 queries['10'] = 'DestinationsFromAirport'
 queries['11'] = 'AirportDistance'
 queries['12'] = 'AirportTimeDifference'
@@ -52,6 +52,7 @@ end
 
 get '/ar' do
   content_type 'text/json'
+  
   # Build query
   query = queries[params[:id]]
   if query == nil
