@@ -23,6 +23,9 @@ queries = {
   '20' => 'AirportAtMinElevation'
 }
 
+DB = Mysql::new("localhost", "parker", "local_password", "aether", 3306, nil, Mysql::CLIENT_MULTI_RESULTS)
+DB.query_with_result=false
+
 configure do
   Compass.configuration.parse(File.join(Sinatra::Application.root, 'config', 'compass.config'))
   
@@ -42,5 +45,22 @@ end
 
 get '/ar' do
   content_type 'text/json'
-  print queries[params['id']]
+  # Build query
+  query = queries[params[:id]]
+  if query == nil
+    return
+  end
+  
+  # Call query, print results
+  begin
+    DB.query("CALL " + query)
+    res = DB.use_result
+    while row = res.fetch_row() do
+      printf "%s, %s\n", row[0], row[1]
+    end
+    res.free
+    DB.next_result
+  rescue Mysql::Error => e  
+    return
+  end   
 end
