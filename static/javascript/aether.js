@@ -1,5 +1,6 @@
 /**
  * @author Matthew Ziegelbaum <mziegelbaum@acm.jhu.edu>
+ * @author Parker Shelton <hpshelton@acm.jhu.edu>
  * @fileoverview Implements most of the functionality for aether.
  */
 
@@ -46,10 +47,42 @@ function load() {
   var mgr = new MarkerManager(map, {
        trackMarkers: true
      });
+
+  // Set up jQuery's AJAX options
   mapObj = map;
   markerManager = mgr;
 };
 
 function unload() {
   GUnload();
+};
+
+/**
+ * Makes a request to the server and updates the map and table with the data
+ * returned.
+ * @param {String} query The query name.
+ * @param {Object} data The map of data to pass to the server.
+ * @returns Describe what it returns
+ * @type String|Object|Array|Boolean|Number
+ */
+function makeRequestAndUpdate(query, data) {
+  data = data || {};
+  if (!!query) {
+    $.getJSON('/ar/', data, updateUI_);
+  }
+};
+
+/**
+ * Updates the map and loads a table based on the server response.
+ * @param {Object} data The data returned by jQuery's .getJSON.
+ * @private
+ */
+function updateUI_(data) {
+  var tbl = $('<table id="data"></table>');
+  var header = tbl.append('<thead><tr></tr></thead>');
+  data.headers.each(function(name) {
+    header.append('<td>' + name + '</td>');
+  });
+  var body = tbl.append('<tbody><tr><td></td></tr></tbody>');
+  $('#data').replaceWith(tbl);
 };
