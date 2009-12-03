@@ -5,6 +5,7 @@
 5. Place marker at lat./log, list in result area
 6. 
 7. Draw arc between start/dest airports (TODO - larger join query), list in result area
+8.
 9. List in result area, draw destinations on map?
 9.b. List in result area, draw destinations on map?
 10. Place marker on map, highlight routes?, list in result area
