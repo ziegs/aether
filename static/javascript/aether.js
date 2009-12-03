@@ -1,5 +1,6 @@
 /**
  * @author Matthew Ziegelbaum <mziegelbaum@acm.jhu.edu>
+ * @author Parker Shelton <hpshelton@acm.jhu.edu>
  * @fileoverview Implements most of the functionality for aether.
  */
 
