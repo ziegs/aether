@@ -6,6 +6,8 @@
 var mapObj;
 var markerManager;
 
+
+/** If you update the queries hash, make sure you update the object in aether.rb! */
 var queries = {
   '1': 'AllAirports',
   '2': 'AllAirlines',
@@ -30,7 +32,6 @@ function load() {
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
   map.addControl(new GOverviewMapControl());
-  map.enableDoubleClickZoom();
   
   // For some reason, the marker manager will only work if the center is set.
   var ftWorth = new GLatLng(32.896828000,-97.037997000);
