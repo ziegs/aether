@@ -8,7 +8,8 @@ require 'mysql'
 
 configure do
   Compass.configuration.parse(File.join(Sinatra::Application.root, 'config', 'compass.config'))
-
+  
+  set :public, File.join(Sinatra::Application.root, 'static')
   set :haml, { :format => :html5 }
   set :sass, Compass.sass_engine_options
 end
