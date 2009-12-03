@@ -8,20 +8,26 @@ var markerManager;
 
 
 /** If you update the queries hash, make sure you update the object in aether.rb! */
-var queries = {
-  '1': 'AllAirports',
-  '2': 'AllAirlines',
-  '3': 'AllRoutes',
-  '5': 'AirportsAirlineServices',
-  '7': 'RoutesAirlineServices',
-  '9a': 'AirlinesLeavingAirport',
-  '9b': 'AirlinesEnteringAirport',
-  '10': 'DestinationsFromAirpot',
-  '11': 'AirportDistance',
-  '12': 'AirportTimeDifference',
-  '16': 'CostBetweenAirports',
-  '19': 'AirportAtMaxElevation',
-  '20': 'AirportAtMinElevation'
+var queries0 = {
+  '1' : 'AllAirports',
+  '2' : 'AllAirlines',
+  '3' : 'AllRoutes',
+  '19' : 'AirportAtMaxElevation',
+  '20' : 'AirportAtMinElevation'
+}
+
+var queries1 = {
+  '5' : 'AirportsAirlineServices',
+  '7' : 'RoutesAirlineServices',
+  '9a' : 'AirlinesLeavingAirport',
+  '9b' : 'AirlinesEnteringAirport',
+  '10' : 'DestinationsFromAirport',
+}
+
+var queries2 = {
+  '11' : 'AirportDistance',
+  '12' : 'AirportTimeDifference',
+  '16' : 'CostBetweenAirports',  
 }
 
 /**

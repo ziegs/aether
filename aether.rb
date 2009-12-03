@@ -7,20 +7,26 @@ require 'compass'
 require 'mysql'
 
 # If you update the queries hash, make sure you update the object in aether.js!
-queries = {
+queries0 = {
   '1' => 'AllAirports',
   '2' => 'AllAirlines',
   '3' => 'AllRoutes',
+  '19' => 'AirportAtMaxElevation',
+  '20' => 'AirportAtMinElevation'
+}
+
+queries1 = {
   '5' => 'AirportsAirlineServices',
   '7' => 'RoutesAirlineServices',
   '9a' => 'AirlinesLeavingAirport',
   '9b' => 'AirlinesEnteringAirport',
-  '10' => 'DestinationsFromAirpot',
+  '10' => 'DestinationsFromAirport',
+}
+
+queries2 = {
   '11' => 'AirportDistance',
   '12' => 'AirportTimeDifference',
-  '16' => 'CostBetweenAirports',
-  '19' => 'AirportAtMaxElevation',
-  '20' => 'AirportAtMinElevation'
+  '16' => 'CostBetweenAirports',  
 }
 
 DB = Mysql::new("einstein.cs.jhu.edu", "mziegel", "xe0QuiuX", "aether_dev", 3306, nil, Mysql::CLIENT_MULTI_RESULTS)
@@ -47,15 +53,35 @@ get '/ar' do
   content_type 'text/json'
   json_result = [];
   
-  # Build query
-  query = queries[params[:id]]
+  num_params = params.size()-1
+  
+  # Choose query
+  if num_params == 0
+    query = queries0[params[:id]]
+  elsif num_params == 1
+    query = queries1[params[:id]]
+  elsif num_params == 2
+    query = queries2[params[:id]]
+  end
+  
   if query == nil
     return json_result.to_json()
   end
     
   # Call query, return all result tables in JSON form
   begin
-    DB.query("CALL " + query)
+    # Build query
+    query = "CALL " + query + "(";
+    if num_params >= 1
+      query = query + "\"" + params[:p1] + "\""
+    end
+    if num_params >= 2
+      query = query + ",\"" + params[:p2] + "\""
+    end
+    query = query + ");"
+    print query
+      
+    DB.query(query)
     while DB.more_results?()
       rs = DB.use_result()
       rh = Array.new()
