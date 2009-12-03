@@ -84,6 +84,12 @@ BEGIN
 	CLOSE cur;
 END\\
 
+DROP PROCEDURE IF EXISTS CostBetweenAirports\\
+CREATE PROCEDURE CostBetweenAirports(IN Airport1 INT, IN Airport2 INT)
+BEGIN
+	SELECT TicketPrice FROM Routes WHERE SourceID = Airport1 AND DestID = Airport2;
+END\\
+
 DROP PROCEDURE IF EXISTS AirportAtMaxElevation\\
 CREATE PROCEDURE AirportAtMaxElevation()
 BEGIN
