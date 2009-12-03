@@ -7,7 +7,6 @@
 var mapObj;
 var markerManager;
 
-
 /** If you update the queries hash, make sure you update the object in aether.rb! */
 var queries0 = {
   '1' : 'AllAirports',
