@@ -50,7 +50,17 @@ END\\
 
 DROP FUNCTION IF EXISTS AirportDistance\\
 CREATE FUNCTION AirportDistance(airport1 INT, airport2 INT) RETURNS FLOAT DETERMINISTIC
-BEGIN	RETURN (SELECT SQRT(POW((A1.latitude - A2.latitude), 2) + POW((A1.longitude - A2.longitude), 2))	AS Distance FROM Airports A1, Airports A2	WHERE A1.id = airport1 AND A2.id = airport2); 
+BEGIN
+	DECLARE Lat1, Lat2, Long1, Long2 FLOAT;
+	DECLARE cur CURSOR FOR SELECT Latitude, Longitude FROM Airports A1 WHERE A1.ID = airport1;
+	DECLARE cur2 CURSOR FOR SELECT Latitude, Longitude FROM Airports A2 WHERE A2.ID = airport2;
+	OPEN cur;
+	OPEN cur2;
+	FETCH cur INTO Lat1, Long1;
+	FETCH cur2 INTO Lat2, Long2;
+	CLOSE cur;
+	CLOSE cur2;
+	RETURN ((ACOS(SIN(Lat1 * PI() / 180) * SIN(Lat2 * PI() / 180) + COS(Lat1 * PI() / 180) * COS(Lat2 * PI() / 180) * COS((Long1 - Long2) * PI() / 180)) * 180 / PI()) * 60 * 1.1515);
 END\\
 
 DROP FUNCTION IF EXISTS AirportTimeDifference\\
