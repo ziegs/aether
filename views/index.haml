@@ -28,6 +28,7 @@
         /*map.addControl(new GLargeMapControl());*/
         map.addControl(new GOverviewMapControl());
         map.setUIToDefault();
+        map.enableDoubleClickZoom();
         var ftWorth = new GLatLng(32.896828000,-97.037997000);
         var ftWorthOptions = {title: 'Dallas-Ft. Worth'};
         map.setCenter(ftWorth, 7);
