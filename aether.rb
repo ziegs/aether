@@ -6,6 +6,7 @@ require 'sass'
 require 'compass'
 require 'mysql'
 
+# If you update the queries hash, make sure you update the object in aether.js!
 queries = {
   '1' => 'AllAirports',
   '2' => 'AllAirlines',
@@ -28,7 +29,6 @@ configure do
   set :public, File.join(Sinatra::Application.root, 'static')
   set :haml, { :format => :html5 }
   set :sass, Compass.sass_engine_options
-  
 end
 
 get '/stylesheets/:name.css' do

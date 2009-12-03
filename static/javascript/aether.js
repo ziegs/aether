@@ -6,6 +6,22 @@
 var mapObj;
 var markerManager;
 
+var queries = {
+  '1': 'AllAirports',
+  '2': 'AllAirlines',
+  '3': 'AllRoutes',
+  '5': 'AirportsAirlineServices',
+  '7': 'RoutesAirlineServices',
+  '9a': 'AirlinesLeavingAirport',
+  '9b': 'AirlinesEnteringAirport',
+  '10': 'DestinationsFromAirpot',
+  '11': 'AirportDistance',
+  '12': 'AirportTimeDifference',
+  '16': 'CostBetweenAirports',
+  '19': 'AirportAtMaxElevation',
+  '20': 'AirportAtMinElevation'
+}
+
 /**
  * Initializes Google Map and basic overlays.
  */
