@@ -23,7 +23,7 @@ queries = {
   '20' => 'AirportAtMinElevation'
 }
 
-DB = Mysql::new("localhost", "parker", "local_password", "aether", 3306, nil, Mysql::CLIENT_MULTI_RESULTS)
+DB = Mysql::new("einstein.cs.jhu.edu", "mziegel", "xe0QuiuX", "aether_dev", 3306, nil, Mysql::CLIENT_MULTI_RESULTS)
 DB.query_with_result=false
 
 configure do
