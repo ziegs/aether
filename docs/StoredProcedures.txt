@@ -101,3 +101,10 @@ CREATE PROCEDURE AirportAtMinElevation()
 BEGIN
 	SELECT * FROM Airports A WHERE A.Altitude <= ALL(SELECT Altitude FROM Airports);
 END \\
+
+DROP PROCEDURE IF EXISTS PopulateInternational\\
+CREATE PROCEDURE PopulateInternational()
+BEGIN
+	UPDATE Routes R INNER JOIN Airports A1 ON SourceID = A1.ID INNER JOIN Airports A2 ON DestID = A2.ID SET International = 'Y' WHERE A1.Country != A2.Country;
+	UPDATE Routes R INNER JOIN Airports A1 ON SourceID = A1.ID INNER JOIN Airports A2 ON DestID = A2.ID SET International = 'N' WHERE A1.Country = A2.Country;
+END\\
