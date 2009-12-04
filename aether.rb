@@ -23,7 +23,7 @@ queries = {
   '20' => 'AirportAtMinElevation'
 }
 
-DB = Mysql::new("einstein.cs.jhu.edu", "mziegel", "xe0QuiuX", "aether_dev", 3306, nil, Mysql::CLIENT_MULTI_RESULTS)
+DB = Mysql.new "einstein.cs.jhu.edu", "mziegel", "xe0QuiuX", "aether_dev", 3306, nil, Mysql::CLIENT_MULTI_RESULTS
 DB.query_with_result=false
 
 configure do
@@ -45,7 +45,7 @@ end
 
 get '/ar' do
   content_type 'text/json'
-  json_result = [];
+  json_result = Hash.new
   
   # Build query
   query = queries[params[:id]]
@@ -56,19 +56,20 @@ get '/ar' do
   # Call query, return all result tables in JSON form
   begin
     DB.query("CALL " + query)
-    while DB.more_results?()
-      rs = DB.use_result()
-      rh = Array.new()
+    rh = Array.new
+    while DB.more_results?
+      rs = DB.use_result
+      #rh = Array.new
       while row = rs.fetch_hash() do
         rh.push(row)
       end
-      json_result.push(rh)
+      #records.push(rh)
       rs.free()
       DB.next_result()
     end
+    json_result[:records] = rh
   rescue Mysql::Error => e  
     return
-  end   
-  
+  end
   return json_result.to_json();
 end

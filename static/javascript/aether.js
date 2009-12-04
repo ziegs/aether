@@ -10,21 +10,21 @@ var markerManager;
 
 /** If you update the queries hash, make sure you update the object in aether.rb! */
 var queries = {
-  '1': 'AllAirports',
-  '2': 'AllAirlines',
-  '3': 'AllRoutes',
-  '5': 'AirportsAirlineServices',
-  '7': 'RoutesAirlineServices',
-  '9a': 'AirlinesLeavingAirport',
-  '9b': 'AirlinesEnteringAirport',
-  '10': 'DestinationsFromAirpot',
-  '11': 'AirportDistance',
-  '12': 'AirportTimeDifference',
-  '16': 'CostBetweenAirports',
-  '19': 'AirportAtMaxElevation',
-  '20': 'AirportAtMinElevation'
-}
-
+  'AirlinesEnteringAirport': '9b',
+  'AirlinesLeavingAirport': '9a',
+  'AirportAtMaxElevation': '19',
+  'AirportAtMinElevation': '20',
+  'AirportDistance': '11',
+  'AirportTimeDifference': '12',
+  'AirportsAirlineServices': '5',
+  'AllAirlines': '2',
+  'AllAirports': '1',
+  'AllRoutes': '3',
+  'CostBetweenAirports': '16',
+  'DestinationsFromAirpot': '10',
+  'RoutesAirlineServices': '7'
+};
+ 
 /**
  * Initializes Google Map and basic overlays.
  */
@@ -74,9 +74,26 @@ function makeRequestAndUpdate(query, data) {
 function updateUI_(data) {
   var tbl = $('<table id="data"></table>');
   var header = tbl.append('<thead><tr></tr></thead>');
-  data.headers.each(function(name) {
+  $.each(data.headers, function(i, name) {
     header.append('<td>' + name + '</td>');
   });
+  
   var body = tbl.append('<tbody><tr><td></td></tr></tbody>');
+  $.each(data.records, function(i, record) {
+    $.each(record, function(j, data) {
+      row = body.append('<td>' + data + '</td>');
+    });
+  });
   $('#data').replaceWith(tbl);
+  tbl.tablesorter();
+};
+
+
+// REMOVE EVENTUALLY
+function toyData() {
+  var data = {
+    'headers': ['Name', 'IATA', 'City', 'Country'],
+    'records': [{'name': 'LaGuardia', 'iata': 'LGA', 'city': 'New York', 'co': 'United States'}]
+  };
+  updateUI_(data);
 };
