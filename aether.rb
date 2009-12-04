@@ -7,7 +7,7 @@ require 'compass'
 require 'mysql'
 
 # If you update the queries hash, make sure you update the object in aether.js!
-queries0 = {
+queries = {
   '1' => 'AllAirports',
   '2' => 'AllAirlines',
   '3' => 'AllRoutes',
@@ -70,7 +70,7 @@ get '/ar' do
   end
   
   sql_params = Array.new
-  1.upto(param_length) { |i| sql_params.push(params[('p' + i.to_s).to_sym]) }
+  1.upto(param_length) { |i| sql_params.push(params[("p#{i}").to_sym]) }
   
   # Call query, return all result tables in JSON form
   begin
@@ -95,5 +95,44 @@ get '/ar' do
   rescue Mysql::Error => e  
     return
   end
-  return json_result.to_json();
+  
+  json_result.to_json
+end
+
+# Airline or Airport requests
+get '/ir' do
+  content_type 'text/json'
+  table = ""
+  case params[:qid]
+  when 'airport'
+    table = "Airports"
+  when 'airline'
+    table = "Airlines"
+  else
+    return {}.to_json
+  end
+  id = params[:aid]
+  begin
+    DB.query("SELECT * FROM #{table} WHERE #{table}.ID = #{id} LIMIT 1")
+    result = DB.use_result
+    result.fetch_hash().to_json
+  rescue Mysql::Error => e
+    return {}.to_json
+  end
+end
+
+# Route requests
+get '/rr' do
+  content_type = 'text/json'
+  airline_id = params[:aid]
+  source_id = params[:src]
+  dest_id = params[:dst]
+  begin
+    DB.query("SELECT * FROM Routes WHERE Routes.AirlineID = #{airline_id}" + 
+      " AND Routes.SourceID = #{source_id} AND Routes.DestID = #{dest_id}")
+    result = DB.use_result
+    result.fetch_hash().to_json
+  rescue Mysql::Error => e
+    return {}.to_json
+  end
 end

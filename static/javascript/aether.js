@@ -8,27 +8,37 @@ var mapObj;
 var markerManager;
 
 /** If you update the queries object, make sure you update the hash in aether.rb! */
-var queries0 = {
-  '1' : 'AllAirports',
-  '2' : 'AllAirlines',
-  '3' : 'AllRoutes',
-  '19' : 'AirportAtMaxElevation',
-  '20' : 'AirportAtMinElevation'
-}
+var queries = {
+  'AirlinesEnteringAirport': '9b',
+  'AirlinesLeavingAirport': '9a',
+  'AirportAtMaxElevation': '19',
+  'AirportAtMinElevation': '20',
+  'AirportDistance': '11',
+  'AirportTimeDifference': '12',
+  'AirportsAirlineServices': '5',
+  'AllAirlines': '2',
+  'AllAirports': '1',
+  'AllRoutes': '3',
+  'CostBetweenAirports': '16',
+  'DestinationsFromAirport': '10',
+  'RoutesAirlineServices': '7'
+};
 
-var queries1 = {
-  '5' : 'AirportsAirlineServices',
-  '7' : 'RoutesAirlineServices',
-  '9a' : 'AirlinesLeavingAirport',
-  '9b' : 'AirlinesEnteringAirport',
-  '10' : 'DestinationsFromAirport',
-}
-
-var queries2 = {
-  '11' : 'AirportDistance',
-  '12' : 'AirportTimeDifference',
-  '16' : 'CostBetweenAirports',  
-}
+var num_params = {
+  'AirlinesEnteringAirport': 1,
+  'AirlinesLeavingAirport': 1,
+  'AirportAtMaxElevation': 0,
+  'AirportAtMinElevation': 0,
+  'AirportDistance': 2,
+  'AirportTimeDifference': 2,
+  'AirportsAirlineServices': 1,
+  'AllAirlines': 0,
+  'AllAirports': 0,
+  'AllRoutes': 0,
+  'CostBetweenAirports': 2,
+  'DestinationsFromAirport': 1,
+  'RoutesAirlineServices': 1
+};
 
 /**
  * Initializes Google Map and basic overlays.
@@ -66,6 +76,7 @@ function unload() {
  */
 function makeRequestAndUpdate(query, data) {
   data = data || {};
+  data['id'] = queries[query] || '';
   if (!!query) {
     $.getJSON('/ar/', data, updateUI_);
   }
