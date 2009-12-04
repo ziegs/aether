@@ -75,8 +75,9 @@ get '/ar' do
   # Call query, return all result tables in JSON form
   begin
     # Build query
-    query = "CALL " + query + "(";
+    query = "CALL " + query + "("
     query += sql_params.join ', '
+    query += ")"
     print query
       
     DB.query(query)
