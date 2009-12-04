@@ -69,19 +69,14 @@ get '/ar' do
     return json_result.to_json()
   end
   
-  params = Array.new
+  sql_params = Array.new
+  1.upto(param_length) { |i| sql_params.push(params[('p' + i.to_s).to_sym]) }
   
   # Call query, return all result tables in JSON form
   begin
     # Build query
     query = "CALL " + query + "(";
-    if num_params >= 1
-      query = query + "\"" + params[:p1] + "\""
-    end
-    if num_params >= 2
-      query = query + ",\"" + params[:p2] + "\""
-    end
-    query = query + ");"
+    query += sql_params.join ', '
     print query
       
     DB.query(query)
