@@ -115,7 +115,9 @@ get '/ir' do
   begin
     DB.query("SELECT * FROM #{table} WHERE #{table}.ID = #{id} LIMIT 1")
     result = DB.use_result
-    result.fetch_hash().to_json
+    ret = result.fetch_hash().to_json
+    result.free
+    return ret
   rescue Mysql::Error => e
     return {}.to_json
   end
@@ -131,7 +133,9 @@ get '/rr' do
     DB.query("SELECT * FROM Routes WHERE Routes.AirlineID = #{airline_id}" + 
       " AND Routes.SourceID = #{source_id} AND Routes.DestID = #{dest_id}")
     result = DB.use_result
-    result.fetch_hash().to_json
+    ret = result.fetch_hash().to_json
+    result.free
+    return ret
   rescue Mysql::Error => e
     return {}.to_json
   end
