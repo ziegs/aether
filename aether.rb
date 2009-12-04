@@ -7,7 +7,7 @@ require 'compass'
 require 'mysql'
 
 # If you update the queries hash, make sure you update the object in aether.js!
-queries = {
+queries0 = {
   '1' => 'AllAirports',
   '2' => 'AllAirlines',
   '3' => 'AllRoutes',
@@ -15,12 +15,28 @@ queries = {
   '7' => 'RoutesAirlineServices',
   '9a' => 'AirlinesLeavingAirport',
   '9b' => 'AirlinesEnteringAirport',
-  '10' => 'DestinationsFromAirpot',
+  '10' => 'DestinationsFromAirport',
   '11' => 'AirportDistance',
   '12' => 'AirportTimeDifference',
-  '16' => 'CostBetweenAirports',
+  '16' => 'CostBetweenAirports',  
   '19' => 'AirportAtMaxElevation',
   '20' => 'AirportAtMinElevation'
+}
+
+num_params = {
+  'AllAirports' => 0,
+  'AllAirlines' => 0,
+  'AllRoutes' => 0,
+  'AirportAtMaxElevation' => 0,
+  'AirportAtMinElevation' => 0,
+  'AirportsAirlineServices' => 1,
+  'RoutesAirlineServices' => 1,
+  'AirlinesLeavingAirport' => 1,
+  'AirlinesEnteringAirport' => 1,
+  'DestinationsFromAirport' => 1,
+  'AirportDistance' => 2,
+  'AirportTimeDifference' => 2,
+  'CostBetweenAirports' => 2
 }
 
 DB = Mysql.new "einstein.cs.jhu.edu", "mziegel", "xe0QuiuX", "aether_dev", 3306, nil, Mysql::CLIENT_MULTI_RESULTS
@@ -47,19 +63,31 @@ get '/ar' do
   content_type 'text/json'
   json_result = Hash.new
   
-  # Build query
-  query = queries[params[:id]]
+  query = queries[params[:id]]  
+  param_length = num_params[query]
   if query == nil
     return json_result.to_json()
   end
-    
+  
+  params = Array.new
+  
   # Call query, return all result tables in JSON form
   begin
-    DB.query("CALL " + query)
-    rh = Array.new
-    while DB.more_results?
-      rs = DB.use_result
-      #rh = Array.new
+    # Build query
+    query = "CALL " + query + "(";
+    if num_params >= 1
+      query = query + "\"" + params[:p1] + "\""
+    end
+    if num_params >= 2
+      query = query + ",\"" + params[:p2] + "\""
+    end
+    query = query + ");"
+    print query
+      
+    DB.query(query)
+    while DB.more_results?()
+      rs = DB.use_result()
+      rh = Array.new()
       while row = rs.fetch_hash() do
         rh.push(row)
       end

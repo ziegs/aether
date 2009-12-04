@@ -7,24 +7,29 @@
 var mapObj;
 var markerManager;
 
+/** If you update the queries object, make sure you update the hash in aether.rb! */
+var queries0 = {
+  '1' : 'AllAirports',
+  '2' : 'AllAirlines',
+  '3' : 'AllRoutes',
+  '19' : 'AirportAtMaxElevation',
+  '20' : 'AirportAtMinElevation'
+}
 
-/** If you update the queries hash, make sure you update the object in aether.rb! */
-var queries = {
-  'AirlinesEnteringAirport': '9b',
-  'AirlinesLeavingAirport': '9a',
-  'AirportAtMaxElevation': '19',
-  'AirportAtMinElevation': '20',
-  'AirportDistance': '11',
-  'AirportTimeDifference': '12',
-  'AirportsAirlineServices': '5',
-  'AllAirlines': '2',
-  'AllAirports': '1',
-  'AllRoutes': '3',
-  'CostBetweenAirports': '16',
-  'DestinationsFromAirpot': '10',
-  'RoutesAirlineServices': '7'
-};
- 
+var queries1 = {
+  '5' : 'AirportsAirlineServices',
+  '7' : 'RoutesAirlineServices',
+  '9a' : 'AirlinesLeavingAirport',
+  '9b' : 'AirlinesEnteringAirport',
+  '10' : 'DestinationsFromAirport',
+}
+
+var queries2 = {
+  '11' : 'AirportDistance',
+  '12' : 'AirportTimeDifference',
+  '16' : 'CostBetweenAirports',  
+}
+
 /**
  * Initializes Google Map and basic overlays.
  */
