@@ -20,7 +20,8 @@ queries = {
   '12' => 'AirportTimeDifference',
   '16' => 'CostBetweenAirports',  
   '19' => 'AirportAtMaxElevation',
-  '20' => 'AirportAtMinElevation'
+  '20' => 'AirportAtMinElevation',
+  '21' => 'AllAirportsInCountry'
 }
 
 num_params = {
@@ -36,7 +37,8 @@ num_params = {
   'DestinationsFromAirport' => 1,
   'AirportDistance' => 2,
   'AirportTimeDifference' => 2,
-  'CostBetweenAirports' => 2
+  'CostBetweenAirports' => 2,
+  'AllAirportsInCountry' => 1
 }
 
 DB = Mysql.new "einstein.cs.jhu.edu", "mziegel", "xe0QuiuX", "aether_dev", 3306, nil, Mysql::CLIENT_MULTI_RESULTS
@@ -59,6 +61,7 @@ get '/' do
   haml :index
 end
 
+# General query action request
 get '/ar' do
   content_type 'text/json'
   json_result = Hash.new
@@ -66,7 +69,7 @@ get '/ar' do
   query = queries[params[:id]]  
   param_length = num_params[query]
   if query == nil
-    return json_result.to_json()
+    return json_result.to_json
   end
   
   sql_params = Array.new
@@ -81,15 +84,15 @@ get '/ar' do
     print query
       
     DB.query(query)
-    while DB.more_results?()
-      rs = DB.use_result()
-      rh = Array.new()
-      while row = rs.fetch_hash() do
+    while DB.more_results?
+      rs = DB.use_result
+      rh = Array.new
+      while row = rs.fetch_hash do
         rh.push(row)
       end
       #records.push(rh)
-      rs.free()
-      DB.next_result()
+      rs.free
+      DB.next_result
     end
     json_result[:records] = rh
   rescue Mysql::Error => e  
@@ -99,7 +102,7 @@ get '/ar' do
   json_result.to_json
 end
 
-# Airline or Airport requests
+# Airline or Airport request
 get '/ir' do
   content_type 'text/json'
   table = ""

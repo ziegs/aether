@@ -21,7 +21,8 @@ var queries = {
   'AllRoutes': '3',
   'CostBetweenAirports': '16',
   'DestinationsFromAirport': '10',
-  'RoutesAirlineServices': '7'
+  'RoutesAirlineServices': '7',
+  'AllAirportsInCountry' : '21'
 };
 
 var num_params = {
@@ -37,7 +38,8 @@ var num_params = {
   'AllRoutes': 0,
   'CostBetweenAirports': 2,
   'DestinationsFromAirport': 1,
-  'RoutesAirlineServices': 1
+  'RoutesAirlineServices': 1,
+  'AllAirportsInCountry' : 1
 };
 
 /**
