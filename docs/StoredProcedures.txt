@@ -12,6 +12,13 @@ BEGIN
 	SELECT * FROM Airlines;
 END\\
 
+DROP PROCEDURE IF EXISTS AllAirportsInCountry\\
+CREATE PROCEDURE AllAirportsInCountry(IN Country VARCHAR(255))
+BEGIN
+	SELECT * FROM Airports WHERE Airports.Country = Country;
+END\\
+
+
 DROP PROCEDURE IF EXISTS AllRoutes\\
 CREATE PROCEDURE AllRoutes()
 BEGIN
