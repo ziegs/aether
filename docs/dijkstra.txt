@@ -1,0 +1,146 @@
+# Run a series of queries:
+# CALL insertEdge("A", "B", 1);
+# CALL insertEdge("A", "C", 5);
+# CALL insertEdge("B", "D", 2);
+# CALL insertEdge("C", "D", 2);
+# CALL insertEdge("B", "E", 4);
+# CALL insertEdge("C", "E", 3);
+# CALL insertEdge("B", "E", 1);
+# CALL insertEdge("B", "E", 4);
+# CALL insertEdge("D", "E", 1);
+# select * from edges;
+# select * from nodes;
+# call dijkstra("A","E");
+
+
+DELIMITER \\
+DROP TABLE IF EXISTS Nodes, Edges\\
+
+CREATE TABLE Nodes ( 
+  NodeID int PRIMARY KEY AUTO_INCREMENT NOT NULL, 
+  NodeName varchar (20) NOT NULL, 
+  Cost int NULL, 
+  PathID int NULL, 
+  Calculated tinyint NOT NULL  
+)\\
+
+
+CREATE TABLE Edges ( 
+  PathID int PRIMARY KEY AUTO_INCREMENT, 
+  FromNodeID int NOT NULL , 
+  ToNodeID int NOT NULL , 
+  Cost int NOT NULL
+)\\
+
+
+DROP PROCEDURE IF EXISTS insertEdge \\
+# The name of the start node, end node, and the weight of the edge between them  
+# Updates the edge with a new cost if it already exists
+CREATE PROCEDURE insertEdge(IN pFromNodeName VARCHAR(255), IN pToNodeName VARCHAR(255), IN pCost INT) 
+BEGIN 
+  DECLARE vFromNodeID, vToNodeID, vPathID INT; 
+  SET vFromNodeID = (SELECT NodeID FROM Nodes WHERE NodeName = pFromNodeName); 
+  IF vFromNodeID IS NULL THEN 
+    BEGIN 
+      INSERT INTO Nodes (NodeName, Calculated) VALUES (pFromNodeName, 0); 
+      SET vFromNodeID = LAST_INSERT_ID(); 
+    END; 
+  END IF; 
+  SET vToNodeID = (SELECT NodeID FROM Nodes WHERE NodeName = pToNodeName); 
+  IF vToNodeID IS NULL THEN 
+    BEGIN 
+      INSERT INTO Nodes (NodeName, Calculated) VALUES(pToNodeName, 0); 
+      SET vToNodeID = LAST_INSERT_ID(); 
+    END; 
+  END IF; 
+  SET vPathID = (SELECT PathID FROM Edges WHERE FromNodeID = vFromNodeID AND ToNodeID = vToNodeID); 
+  IF vPathID IS NULL THEN 
+    INSERT INTO Edges(FromNodeID, ToNodeID, Cost) VALUES (vFromNodeID, vToNodeID, pCost); 
+  ELSE 
+    UPDATE Edges SET Cost = pCost WHERE FromNodeID = vFromNodeID AND ToNodeID = vToNodeID; 
+  END IF; 
+END\\
+
+DROP PROCEDURE IF EXISTS dijkstra \\
+CREATE PROCEDURE dijkstra(pFromNodeName VARCHAR(255), pToNodeName VARCHAR(255))
+BEGIN
+  DECLARE vFromNodeID, vToNodeID, vNodeID, vCost, vPathID INT;
+  DECLARE vFromNodeName, vToNodeName VARCHAR(255);
+  -- null out path info in the nodes table
+  UPDATE Nodes SET PathID = NULL, Cost = NULL, Calculated = 0;
+  -- find nodeIDs referenced by input params
+  SET vFromNodeID = (SELECT NodeID FROM Nodes WHERE NodeName = pFromNodeName);
+  IF vFromNodeID IS NULL THEN
+    SELECT CONCAT('From node name ', pFromNodeName, ' not found.'); 
+  ELSE
+    BEGIN
+      -- start at src node
+      SET vNodeID = vFromNodeID;
+      SET vToNodeID = (SELECT NodeID FROM Nodes WHERE NodeName = pToNodeName);
+      IF vToNodeID IS NULL THEN
+        SELECT CONCAT('From node name ', pToNodeName, ' not found.');
+      ELSE
+        BEGIN
+          -- calculate path costs till all are finished
+          UPDATE Nodes SET Cost = 0 WHERE NodeID = vFromNodeID;
+          WHILE vNodeID IS NOT NULL DO
+            BEGIN
+              UPDATE
+                Nodes src JOIN Edges paths ON paths.FromNodeID = src.NodeID
+                  JOIN Nodes dest ON dest.NodeID = paths.ToNodeID
+              SET dest.Cost = CASE
+                                WHEN dest.Cost IS NULL THEN src.Cost + Paths.Cost
+                                WHEN src.Cost + Paths.Cost < dest.Cost THEN src.Cost + Paths.Cost
+                                ELSE dest.Cost
+                              END,
+                  dest.PathID = Paths.PathID
+              WHERE 
+                src.NodeID = vNodeID
+                AND (dest.Cost IS NULL OR src.Cost + Paths.Cost < dest.Cost)
+                AND dest.Calculated = 0;
+       
+              UPDATE Nodes SET Calculated = 1 WHERE NodeID = vNodeID;
+
+              SET vNodeID = ( SELECT nodeID FROM Nodes
+                              WHERE Calculated = 0 AND Cost IS NOT NULL
+                              ORDER BY Cost LIMIT 1
+                            );
+            END;
+          END WHILE;
+        END;
+      END IF;
+    END;
+  END IF;
+  IF EXISTS(SELECT 1 FROM nodes WHERE NodeID = vToNodeID AND Cost IS NULL) THEN
+    -- problem,  cannot proceed
+    SELECT CONCAT('Node ', vNodeID, ' missed.');
+  ELSE
+    BEGIN
+      -- write itinerary to map table
+      # create a tempoorary table in memory - may not fit...
+      CREATE TEMPORARY TABLE Map (
+        RowID INT PRIMARY KEY AUTO_INCREMENT,
+        FromNodeName VARCHAR(255),
+        ToNodeName VARCHAR(255),
+        Cost INT
+      ) ENGINE = MEMORY;
+      WHILE vFromNodeID <> vToNodeID DO
+        BEGIN
+          SELECT 
+            src.NodeName, dest.NodeName, dest.Cost, dest.PathID
+            INTO vFromNodeName, vToNodeName, vCost, vPathID
+          FROM 
+            Nodes dest JOIN Edges paths ON Paths.PathID = dest.PathID
+              JOIN nodes src ON src.NodeID = Paths.FromNodeID
+          WHERE dest.NodeID = vToNodeID;
+          
+          INSERT INTO Map(FromNodeName, ToNodeName, Cost) VALUES(vFromNodeName, vToNodeName, vCost);
+          
+          SET vToNodeID = (SELECT FromNodeID FROM edges WHERE PathID = vPathID);
+        END;
+      END WHILE;
+      SELECT FromNodeName, ToNodeName, Cost FROM Map ORDER BY RowID DESC;
+      DROP TEMPORARY TABLE Map;
+    END;
+  END IF;
+END \\
