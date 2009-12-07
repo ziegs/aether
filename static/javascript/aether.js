@@ -22,7 +22,8 @@ var queries = {
   'CostBetweenAirports': '16',
   'DestinationsFromAirport': '10',
   'RoutesAirlineServices': '7',
-  'AllAirportsInCountry' : '21'
+  'AllAirportsInCountry' : '21',
+  'AirlinesBetweenCities' : '4'
 };
 
 var num_params = {
@@ -39,7 +40,8 @@ var num_params = {
   'CostBetweenAirports': 2,
   'DestinationsFromAirport': 1,
   'RoutesAirlineServices': 1,
-  'AllAirportsInCountry' : 1
+  'AllAirportsInCountry' : 1,
+  'AirlinesBetweenCities' : 2
 };
 
 /**

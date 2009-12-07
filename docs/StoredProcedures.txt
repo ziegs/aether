@@ -18,11 +18,18 @@ BEGIN
 	SELECT * FROM Airports WHERE Airports.Country = Country;
 END\\
 
-
 DROP PROCEDURE IF EXISTS AllRoutes\\
 CREATE PROCEDURE AllRoutes()
 BEGIN
 	SELECT * FROM Routes;
+END\\
+
+DROP PROCEDURE IF EXISTS AirlinesBetweenCities\\
+CREATE PROCEDURE AirlinesBetweenCities(IN city1 VARCHAR(255), IN city2 VARCHAR(255))
+BEGIN
+SET @s = CONCAT('SELECT Airline FROM Routes WHERE SourceID IN (SELECT ID FROM Airports WHERE City LIKE "%', city1, '%") AND DestID IN (SELECT ID FROM Airports WHERE City LIKE "%', city2, '%");');
+PREPARE stmt FROM @s;
+EXECUTE stmt;
 END\\
 
 DROP PROCEDURE IF EXISTS AirportsAirlineServices\\
@@ -84,7 +91,8 @@ END\\
 
 DROP FUNCTION IF EXISTS TicketPrice\\
 CREATE FUNCTION TicketPrice(dist FLOAT, Stops INT, startRunways INT, endRunways INT) RETURNS FLOAT DETERMINISTIC
-BEGIN	RETURN ((dist*4.5/5.0) / LOG((stops+2)*100)) + 100 - 40*(stops) - endRunways*8 - startRunways*5;
+BEGIN
+	RETURN ((dist*4.5/5.0) / LOG((stops+2)*100)) + 100 - 40*(stops) - endRunways*8 - startRunways*5;
 END\\
 
 DROP PROCEDURE IF EXISTS PopulateTicketPrices\\
