@@ -14,12 +14,14 @@ queries = {
   '4' => 'AirlinesBetweenCities',
   '5' => 'AirportsAirlineServices',
   '7' => 'RoutesAirlineServices',
+  '8' => 'ShortestFlight()',
   '9a' => 'AirlinesLeavingAirport',
   '9b' => 'AirlinesEnteringAirport',
   '10' => 'DestinationsFromAirport',
   '11' => 'AirportDistance',
   '12' => 'AirportTimeDifference',
   '16' => 'CostBetweenAirports',  
+  '18' => 'CheapestFlight',
   '19' => 'AirportAtMaxElevation',
   '20' => 'AirportAtMinElevation',
   '21' => 'AllAirportsInCountry'
@@ -40,7 +42,9 @@ num_params = {
   'AirportDistance' => 2,
   'AirportTimeDifference' => 2,
   'CostBetweenAirports' => 2,
-  'AllAirportsInCountry' => 1
+  'AllAirportsInCountry' => 1,
+  'ShortestFlight' => 2,
+  'CheapestFlight' => 2
 }
 
 DB = Mysql.new "einstein.cs.jhu.edu", "mziegel", "xe0QuiuX", "aether_dev", 3306, nil, Mysql::CLIENT_MULTI_RESULTS

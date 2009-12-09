@@ -23,7 +23,9 @@ var queries = {
   'DestinationsFromAirport': '10',
   'RoutesAirlineServices': '7',
   'AllAirportsInCountry' : '21',
-  'AirlinesBetweenCities' : '4'
+  'AirlinesBetweenCities' : '4',
+  'ShortestFlight' : '8',
+  'CheapestFlight' : '18'
 };
 
 var num_params = {
@@ -41,7 +43,9 @@ var num_params = {
   'DestinationsFromAirport': 1,
   'RoutesAirlineServices': 1,
   'AllAirportsInCountry' : 1,
-  'AirlinesBetweenCities' : 2
+  'AirlinesBetweenCities' : 2,
+  'ShortestFlight' : 2,
+  'CheapestFlight' : 2
 };
 
 /**

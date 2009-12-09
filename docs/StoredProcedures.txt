@@ -44,6 +44,20 @@ BEGIN
 	SELECT * FROM Routes WHERE AirlineID = Airline;
 END \\
 
+DROP PROCEDURE IF EXISTS ShortestFlight\\
+CREATE PROCEDURE ShortestFlight(IN srcAirport INT, IN destAirport INT)
+BEGIN
+  DECLARE size INT DEFAULT 0;
+  SELECT count(distinct AirlineID) FROM Routes WHERE SourceID = srcAirport AND DestID = destAirport INTO size;
+  IF size > 0 THEN
+    SELECT SourceID, DestID, Stops FROM Routes WHERE SourceID = srcAirport AND DestID = destAirport;
+  ELSE
+    SET @s = CONCAT("CALL dijkstraStops('", srcAirport, "', '", destAirport, "')");
+		PREPARE stmt FROM @s;
+		EXECUTE stmt;
+  END IF;
+END \\  
+
 DROP PROCEDURE IF EXISTS AirlinesLeavingAirport\\
 CREATE PROCEDURE AirlinesLeavingAirport(IN Airport INT)
 BEGIN
@@ -66,15 +80,9 @@ DROP FUNCTION IF EXISTS AirportDistanceF\\
 CREATE FUNCTION AirportDistanceF(airport1 INT, airport2 INT) RETURNS FLOAT DETERMINISTIC
 BEGIN
 	DECLARE Lat1, Lat2, Long1, Long2 FLOAT;
-	DECLARE cur CURSOR FOR SELECT Latitude, Longitude FROM Airports A1 WHERE A1.ID = airport1;
-	DECLARE cur2 CURSOR FOR SELECT Latitude, Longitude FROM Airports A2 WHERE A2.ID = airport2;
-	OPEN cur;
-	OPEN cur2;
-	FETCH cur INTO Lat1, Long1;
-	FETCH cur2 INTO Lat2, Long2;
-	CLOSE cur;
-	CLOSE cur2;
-	RETURN ((ACOS(SIN(Lat1 * PI() / 180) * SIN(Lat2 * PI() / 180) + COS(Lat1 * PI() / 180) * COS(Lat2 * PI() / 180) * COS((Long1 - Long2) * PI() / 180)) * 180 / PI()) * 60 * 1.1515);
+	SELECT Latitude, Longitude FROM Airports A1 WHERE A1.ID = airport1 INTO Lat1, Long1;
+  SELECT Latitude, Longitude FROM Airports A2 WHERE A2.ID = airport2 INTO Lat2, Long2;
+	RETURN ((ACOS(SIN(Lat1 * 0.0174532925) * SIN(Lat2 * 0.0174532925) + COS(Lat1 * 0.0174532925) * COS(Lat2 * 0.0174532925) * COS((Long1 - Long2) * 0.0174532925)) * 180 / 3.14159265) * 69.0900);
 END\\
 
 DROP PROCEDURE IF EXISTS AirportDistance\\
@@ -92,7 +100,7 @@ END\\
 DROP FUNCTION IF EXISTS TicketPrice\\
 CREATE FUNCTION TicketPrice(dist FLOAT, Stops INT, startRunways INT, endRunways INT) RETURNS FLOAT DETERMINISTIC
 BEGIN
-	RETURN ((dist*4.5/5.0) / LOG((stops+2)*100)) + 100 - 40*(stops) - endRunways*8 - startRunways*5;
+	RETURN ((dist*0.9) / LOG((stops+2)*100)) + 100 - 40*(stops) - endRunways*8 - startRunways*5;
 END\\
 
 DROP PROCEDURE IF EXISTS PopulateTicketPrices\\
@@ -101,13 +109,15 @@ BEGIN
 	DECLARE done INT DEFAULT 0;
 	DECLARE dist FLOAT;
 	DECLARE SourceID, DestID, Stops, sRunways, eRunways INT;
-	DECLARE cur CURSOR FOR SELECT A1.ID, A2.ID, R.Stops, A1.numRunways, A2.numRunways FROM Routes R INNER JOIN Airports A1 ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID WHERE R.SourceID IS NOT NULL AND R.DestID IS NOT NULL;
-	OPEN cur;
+	DECLARE rAirline VARCHAR(3);
+  DECLARE cur CURSOR FOR SELECT R.Airline, A1.ID, A2.ID, R.Stops, A1.numRunways, A2.numRunways FROM Routes R INNER JOIN Airports A1 ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID WHERE R.SourceID IS NOT NULL AND R.DestID IS NOT NULL;
+	
+  OPEN cur;
 	REPEAT
-		FETCH cur INTO SourceID, DestID, Stops, sRunways, eRunways;
+		FETCH cur INTO rAirline, SourceID, DestID, Stops, sRunways, eRunways;
 		IF NOT done THEN
-			SET @dist = AirportDistance(SourceID, DestID);
-			SET @s = CONCAT("UPDATE Routes SET TicketPrice = '", TicketPrice(dist, Stops, sRunways, eRunways), "' WHERE SourceID = '", SourceID, "' AND DestID = '", DestID, "' AND Stops = '", Stops, "';");
+			SET dist = AirportDistanceF(SourceID, DestID);
+			SET @s = CONCAT("UPDATE Routes SET TicketPrice = '", TicketPrice(dist, Stops, sRunways, eRunways), "' WHERE SourceID = '", SourceID, "' AND DestID = '", DestID, "' AND Airline = '", rAirline, "' AND Stops = '", Stops, "';");
 			PREPARE stmt FROM @s;
 			EXECUTE stmt;
 		END IF;
@@ -141,7 +151,7 @@ BEGIN
 END\\
 
 DROP PROCEDURE IF EXISTS dijkstraStops \\
-CREATE PROCEDURE dijkstraStops(fromAirportID VARCHAR(255), toAirportID VARCHAR(255))
+CREATE PROCEDURE dijkstraStops(IN fromAirportID INT, IN toAirportID INT)
 BEGIN
   DECLARE vFromID, vToID, vID, vCost, vPathID INT;
   DECLARE vFromCity, vToCity VARCHAR(255);
@@ -224,8 +234,8 @@ BEGIN
   END IF;
 END \\
 
-DROP PROCEDURE IF EXISTS dijkstraPrice \\
-CREATE PROCEDURE dijkstraPrice(fromAirportID VARCHAR(255), toAirportID VARCHAR(255))
+DROP PROCEDURE IF EXISTS CheapestFlight \\
+CREATE PROCEDURE CheapestFlight(IN fromAirportID INT, IN toAirportID INT)
 BEGIN
   DECLARE vFromID, vToID, vID, vCost, vPathID INT;
   DECLARE vFromCity, vToCity VARCHAR(255);
