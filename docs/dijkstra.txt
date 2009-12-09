@@ -18,7 +18,7 @@ DROP TABLE IF EXISTS Nodes, Edges\\
 
 CREATE TABLE Nodes ( 
   NodeID int PRIMARY KEY AUTO_INCREMENT NOT NULL, 
-  NodeName varchar (20) NOT NULL, 
+  NodeName varchar (255) NOT NULL, 
   Cost int NULL, 
   PathID int NULL, 
   Calculated tinyint NOT NULL  
