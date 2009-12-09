@@ -1,7 +1,7 @@
 1. Place marker at lat./log, list in result area
 2. List in result area
 3. Draw arc between start/dest airports (TODO - larger join query), list in result area
-4. 
+4. List data in table, put markers on both airports, draw arc
 5. Place marker at lat./log, list in result area
 6. 
 7. Draw arc between start/dest airports (TODO - larger join query), list in result area
