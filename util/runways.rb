@@ -27,6 +27,6 @@ airports.each_value do |airport|
   else
     num = airport[:runways]
     num = num > 0 ? num : 1
-    puts "UPDATE Airports SET NumRunways=#{num} WHERE (IATA = `#{aname}` OR ICAO = `#{aname}`);"
+    puts "UPDATE Airports SET NumRunways=#{num} WHERE (IATA = \"#{aname}\" OR ICAO = \"#{aname}\");"
   end
 end
