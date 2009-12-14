@@ -1,0 +1,3 @@
+#!/bin/bash
+
+shotgun -p 4567 aether.rb $1

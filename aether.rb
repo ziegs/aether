@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'rubygems'
 require 'sinatra'
 require 'haml'
@@ -102,7 +104,7 @@ get '/ar' do
     end
     json_result[:records] = rh
   rescue Mysql::Error => e  
-    return
+    return {}.to_json
   end
   
   json_result.to_json
