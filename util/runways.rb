@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
+require 'mysql'
 require 'csv'
 
 airport_file = ARGV[0]
@@ -20,6 +22,11 @@ end
 
 airports.each_value do |airport|
   aname = airport[:iata]  || airport[:ident]
-  num = airport[:runways]
-  p "Airport #{aname} has #{num}"
+  if aname.length > 4 || aname.length < 3 then # throw out bad codes
+    next
+  else
+    num = airport[:runways]
+    num = num > 0 ? num : 1
+    puts "UPDATE Airports SET NumRunways=#{num} WHERE (IATA = `#{aname}` OR ICAO = `#{aname}`);"
+  end
 end
