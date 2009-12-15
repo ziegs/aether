@@ -28,3 +28,45 @@ body
   #results
     :width 100%
     :height 100%
+=tablesorter-head-foot
+  background-color: #E6EEEE
+  border: 1px solid #FFF
+  font-size: 8pt
+  padding: 4px
+table.tablesorter
+  font:
+    family: arial
+    size: 8pt
+  margin: 10px 0px 15px
+  width: 100%
+  background-color: #CDCDCD
+  text-align: left
+  border: 1px solid #999
+  thead
+    tr
+      th
+        +tablesorter-head-foot
+      .header
+        background:
+          image: url(bg.gif)
+          repeat: no-repeat
+          position: center right
+          cursor: pointer
+      .headerSortUp
+        background-image: url(asc.gif)
+        background-color: #8DBDD8
+      .headerSortDown
+        background-image: url(desc.gif)
+        background-color: #8DBDD8
+  tfoot tr
+    th
+      +tablesorter-head-foot
+  tbody
+    tr.odd
+      td
+        background-color: #F0F0F6
+    td
+      color: #3D3D3D
+      padding: 4px
+      background-color: #FFF
+      vertical-align: top

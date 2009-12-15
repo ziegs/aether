@@ -96,18 +96,25 @@ function makeRequestAndUpdate(query, data) {
  * @private
  */
 function updateUI_(data) {
-  var tbl = $('<table id="data"></table>');
-  var header = tbl.append('<thead><tr></tr></thead>');
+  var tbl = $('<table id="data" class="tablesorter"></table>');
+  var header = '<thead><tr>';
   $.each(data.headers, function(i, name) {
-    header.append('<td>' + name + '</td>');
+    header += '<th class="header">' + name + '</td>';
   });
-  
-  var body = tbl.append('<tbody><tr><td></td></tr></tbody>');
+  header += '</tr></thead>';
+  tbl.append(header)
+  var body = '<tbody>';
   $.each(data.records, function(i, record) {
+    console.log(i);
+    trClass = (i % 2 == 0) ? 'even' : 'odd'
+    body += '<tr class="' + trClass + '">'
     $.each(record, function(j, data) {
-      row = body.append('<td>' + data + '</td>');
+      body += '<td>' + data + '</td>';
     });
+    body += '</tr>'
   });
+  body += '</tbody>';
+  tbl.append(body);
   $('#data').replaceWith(tbl);
   tbl.tablesorter();
 };
@@ -117,7 +124,8 @@ function updateUI_(data) {
 function toyData() {
   var data = {
     'headers': ['Name', 'IATA', 'City', 'Country'],
-    'records': [{'name': 'LaGuardia', 'iata': 'LGA', 'city': 'New York', 'co': 'United States'}]
+    'records': [{'name': 'LaGuardia', 'iata': 'LGA', 'city': 'New York', 'co': 'United States'},
+                {'name': 'Dallas-Ft. Worth', 'iata': 'DFW', 'city': 'Dallas/Ft. Worth', 'co': 'United States'}]
   };
   updateUI_(data);
 };
