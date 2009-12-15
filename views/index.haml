@@ -13,14 +13,17 @@
       #header
         %h1
           aether!
-        %img{:src => "images/airplane_thumb.jpg", :alt => "Airplane"}
+        %img{:src => "images/airplane_thumb.jpg"}
       #left_bar
         %ul.navigation
           %li Airports
           %li Airlines
           %li Routes
       #content
-        #map
+        #mapOuter
+          %a{:href => "#", :alt => "Click to toggle", :id => 'mapToggle'}
+            Toggle Map
+          #map
         #results
           %table#data
             %thead

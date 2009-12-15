@@ -48,10 +48,16 @@ var num_params = {
   'CheapestFlight' : 2
 };
 
+function toggleMapCallback(e) {
+  $('#map').slideToggle("normal");
+  return false;
+};
+
 /**
  * Initializes Google Map and basic overlays.
  */
 function load() {
+  $('#mapToggle').click(toggleMapCallback);
   var map = new GMap2(document.getElementById('map'));
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
@@ -117,7 +123,6 @@ function updateUI_(data) {
   $('#data').replaceWith(tbl);
   tbl.tablesorter();
 };
-
 
 // REMOVE EVENTUALLY
 function toyData() {
