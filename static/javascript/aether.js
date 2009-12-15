@@ -7,8 +7,6 @@
 var mapObj;
 var markerManager;
 
-var DEBUG = true;
-
 /** If you update the queries object, make sure you update the hash in aether.rb! */
 var queries = {
   'AirlinesEnteringAirport': '9b',
@@ -61,10 +59,6 @@ function toggleMapCallback(e) {
 function load() {
   $('#mapToggle').click(toggleMapCallback);
   
-  if (DEBUG) {
-    $('#mapToggle').insertAfter
-  }
-  
   var map = new GMap2(document.getElementById('map'));
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
@@ -99,8 +93,34 @@ function makeRequestAndUpdate(query, data) {
   data = data || {};
   data['id'] = queries[query] || '';
   if (!!query) {
-    $.getJSON('/ar/', data, updateUI_);
+    $.getJSON('/ar/', data, dataReceivedCallback_);
   }
+};
+
+/**
+ * Callback to process data returned from the server display it.
+ * @param {Object} data The JSON data returned by the server.
+ * @private
+ */
+function dataReceivedCallback_(data) {
+  var headers = [];
+  if (data.records && data.records.length != 0) {
+    headers = extractHeaders_(data.records[0]);
+  }
+  updateTable_(headers, data.records);
+  updateMap_(data.map_points, data.map_routes);
+};
+
+/**
+ * Extracts header names from the first row of data.
+ * @param {Object} record The record to grab header names from.
+ */
+function extractHeaders_(record) {
+  var headers = [];
+  $.each(record, function(key, value) {
+    headers.push(key);
+  });
+  return headers;
 };
 
 /**
@@ -108,16 +128,18 @@ function makeRequestAndUpdate(query, data) {
  * @param {Object} data The data returned by jQuery's .getJSON.
  * @private
  */
-function updateUI_(data) {
+function updateTable_(headers, records) {
   var tbl = $('<table id="data" class="tablesorter"></table>');
-  var header = '<thead><tr>';
-  $.each(data.headers, function(i, name) {
-    header += '<th class="header">' + name + '</td>';
-  });
-  header += '</tr></thead>';
-  tbl.append(header);
+  if (headers.length > 0) {
+    var header = '<thead><tr>';
+    $.each(headers, function(i, name) {
+      header += '<th class="header">' + name + '</td>';
+    });
+    header += '</tr></thead>';
+    tbl.append(header);
+  }
   var body = '<tbody>';
-  $.each(data.records, function(i, record) {
+  $.each(records, function(i, record) {
     trClass = (i % 2 == 0) ? 'even' : 'odd'
     body += '<tr class="' + trClass + '">'
     $.each(record, function(j, data) {
@@ -131,15 +153,29 @@ function updateUI_(data) {
   tbl.tablesorter();
 };
 
+function updateMap_(points, routes) {
+  var mgr = markerManager;
+  var markers = [];
+  $.each(points, function(i, point) {
+    var pos = new GLatLng(point['Latitude'], point['Longitude']);
+    var marker = new GMarker(pos);
+    markers.push(marker);
+  });
+  mgr.addMarkers(markers);
+  mgr.refresh();
+  $.each(routes, function(i, route) {
+    
+  });
+};
+
 // REMOVE EVENTUALLY
 function toyData() {
   var data = {
-    'headers': ['Name', 'IATA', 'City', 'Country'],
-    'records': [{'name': 'LaGuardia', 'iata': 'LGA', 'city': 'New York', 'co': 'United States'},
-                {'name': 'Dallas-Ft. Worth', 'iata': 'DFW', 'city': 'Dallas/Ft. Worth', 'co': 'United States'}],
-    'map': [{'id': 3697, 'lat': 40.777245, 'long': -73.872608},
+    'records': [{'Name': 'LaGuardia', 'IATA': 'LGA', 'City': 'New York', 'Country': 'United States'},
+                {'Name': 'Dallas-Ft. Worth', 'IATA': 'DFW', 'City': 'Dallas/Ft. Worth', 'Country': 'United States'}],
+    'map_points': [{'id': 3697, 'lat': 40.777245, 'long': -73.872608},
             {'id': 3670, 'lat': 32.896828, 'long': -97.037997}],
-    'routes': [{'src': [40.777245, -73.872608], 'dst': [32.896828, -97.037997]}]
+    'map_routes': [{'src': [40.777245, -73.872608], 'dst': [32.896828, -97.037997]}]
   };
-  updateUI_(data);
+  dataReceivedCallback_(data);
 };
