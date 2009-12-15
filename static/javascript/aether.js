@@ -102,10 +102,9 @@ function updateUI_(data) {
     header += '<th class="header">' + name + '</td>';
   });
   header += '</tr></thead>';
-  tbl.append(header)
+  tbl.append(header);
   var body = '<tbody>';
   $.each(data.records, function(i, record) {
-    console.log(i);
     trClass = (i % 2 == 0) ? 'even' : 'odd'
     body += '<tr class="' + trClass + '">'
     $.each(record, function(j, data) {
