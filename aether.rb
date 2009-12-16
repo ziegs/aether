@@ -75,10 +75,10 @@ get '/ar' do
   json_result = Hash.new
   
   hash_names = {
-  1 => 'headers',
-  2 => 'records',
-  3 => 'map_points',
-  4 => 'map_routes'
+    1 => 'headers',
+    2 => 'records',
+    3 => 'map_points',
+    4 => 'map_routes'
   }
 
   query = queries[params[:id]]  
@@ -139,9 +139,12 @@ get '/ir' do
   begin
     DB.query("SELECT * FROM #{table} WHERE #{table}.ID = #{id} LIMIT 1")
     result = DB.use_result
-    ret = result.fetch_hash().to_json
+    ret = result.fetch_hash()
     result.free
-    return ret
+    if ret == nil 
+      return {}.to_json
+    end
+    return ret.to_json
   rescue Mysql::Error => e
     return {}.to_json
   end
@@ -157,9 +160,12 @@ get '/rr' do
     DB.query("SELECT * FROM Routes WHERE Routes.AirlineID = #{airline_id}" + 
       " AND Routes.SourceID = #{source_id} AND Routes.DestID = #{dest_id}")
     result = DB.use_result
-    ret = result.fetch_hash().to_json
+    ret = result.fetch_hash()
     result.free
-    return ret
+    if ret == nil 
+      return {}.to_json
+    end
+    return ret.to_json
   rescue Mysql::Error => e
     return {}.to_json
   end
