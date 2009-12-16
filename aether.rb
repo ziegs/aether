@@ -16,7 +16,7 @@ queries = {
   '4' => 'AirlinesBetweenCities',
   '5' => 'AirportsAirlineServices',
   '7' => 'RoutesAirlineServices',
-  '8' => 'ShortestFlight()',
+  '8' => 'ShortestFlight',
   '9a' => 'AirlinesLeavingAirport',
   '9b' => 'AirlinesEnteringAirport',
   '10' => 'DestinationsFromAirport',
@@ -74,6 +74,13 @@ get '/ar' do
   content_type 'text/json'
   json_result = Hash.new
   
+  hash_names = {
+  1 => 'headers',
+  2 => 'records',
+  3 => 'map_points',
+  4 => 'map_routes'
+  }
+
   query = queries[params[:id]]  
   param_length = num_params[query]
   if query == nil
@@ -84,29 +91,35 @@ get '/ar' do
   1.upto(param_length) { |i| sql_params.push(params[("p#{i}").to_sym]) }
   
   # Call query, return all result tables in JSON form
+  # Return headers:{header1 ... headern} records:{SELECT *} map_points: {aiport_id, lat, long} map_routes:{lat, long, lat, long}
   begin
     # Build query
     query = "CALL " + query + "("
     query += sql_params.join ', '
     query += ")"
     print query
-      
+    
+    table_num = 1;
     DB.query(query)
     while DB.more_results?
       rs = DB.use_result
       rh = Array.new
+      table_num = table_num + 1
       while row = rs.fetch_hash do
         rh.push(row)
       end
-      #records.push(rh)
       rs.free
       DB.next_result
+      json_result[hash_names[table_num]] = rh
     end
-    json_result[:records] = rh
+    
+    while table_num < 4
+      table_num = table_num + 1
+      json_result[hash_names[table_num]] = Array.new
+    end
   rescue Mysql::Error => e  
     return {}.to_json
   end
-  
   json_result.to_json
 end
 

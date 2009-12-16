@@ -137,9 +137,9 @@ function toyData() {
     'headers': ['Name', 'IATA', 'City', 'Country'],
     'records': [{'name': 'LaGuardia', 'iata': 'LGA', 'city': 'New York', 'co': 'United States'},
                 {'name': 'Dallas-Ft. Worth', 'iata': 'DFW', 'city': 'Dallas/Ft. Worth', 'co': 'United States'}],
-    'map': [{'id': 3697, 'lat': 40.777245, 'long': -73.872608},
+    'map_points': [{'id': 3697, 'lat': 40.777245, 'long': -73.872608},
             {'id': 3670, 'lat': 32.896828, 'long': -97.037997}],
-    'routes': [{'src': [40.777245, -73.872608], 'dst': [32.896828, -97.037997]}]
+    'map_routes': [{'src': [40.777245, -73.872608], 'dst': [32.896828, -97.037997]}]
   };
   updateUI_(data);
 };
