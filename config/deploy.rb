@@ -5,6 +5,7 @@ set :deploy_to, "/var/aether"
 set :scm, :git
 set :deploy_via, :remote_cache
 set :use_sudo, false
+set :app_server, :passenger
 # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
 
 role :web, "aether.acm.jhu.edu"                          # Your HTTP server, Apache/etc
