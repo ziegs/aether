@@ -98,6 +98,14 @@ function load() {
           $("#loading").fadeOut("normal"); 
   });
   
+  if (DEBUG) {
+    $('#topNav').append('<li>|</li><li><a href="#" id="debugQuery">Click to run sample query</a></li>');
+    $('#debugQuery').click(function(e) {
+      makeRequestAndUpdate('AllAirports', {});
+      return false;
+    });
+  }
+  
   var map = new GMap2(document.getElementById('map'));
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
