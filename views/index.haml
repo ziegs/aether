@@ -37,6 +37,7 @@
         #results
           #loading
             %img{:src => "images/loader.gif"}
+            #progress
           #pager.pager
             %form
               %span.first &laquo;
@@ -44,7 +45,7 @@
               %span.prev &lsaquo;
               %span.next &rsaquo;
               %span.last &raquo;
-              %select.pagesize{:name => "pagesize"}
+              %select.pagesize#pagesize{:name => "pagesize"}
                 %option{:value => 10} 10
                 %option{:value => 20} 20
                 %option{:value => 30} 30

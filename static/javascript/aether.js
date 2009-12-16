@@ -99,7 +99,7 @@ function load() {
   });
   
   if (DEBUG) {
-    $('#topNav').append('<li>|</li><li><a href="#" id="debugQuery">Click to run sample query</a></li>');
+    $('.topNav').append('<li>|</li><li><a href="#" id="debugQuery">Click to run sample query</a></li>');
     $('#debugQuery').click(function(e) {
       makeRequestAndUpdate('AllAirports', {});
       return false;
@@ -136,6 +136,13 @@ function unload() {
  */
 function makeRequestAndUpdate(query, data) {
   data = data || {};
+  switch (query) {
+    case 'AllAirports':
+    case 'AllAirlines':
+    case 'AllRoutes':
+      // warn
+      $.log('Warning!');
+  }
   data['id'] = queries[query] || '';
   if (!!query) {
     $.getJSON('/ar', data, dataReceivedCallback_);
