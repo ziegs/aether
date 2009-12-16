@@ -55,7 +55,7 @@ DB.query_with_result=false
 configure do
   Compass.configuration.parse(File.join(Sinatra::Application.root, 'config', 'compass.config'))
   
-  set :public, File.join(Sinatra::Application.root, 'public')
+  #set :public, File.join(Sinatra::Application.root, 'public')
   set :haml, { :format => :html5 }
   set :sass, Compass.sass_engine_options
 end

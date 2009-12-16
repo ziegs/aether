@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'sinatra'
 require 'aether.rb'
-path = ''
+path = File.dirname(__FILE__)
 
 set :root, path
 set :views, path + '/views'
