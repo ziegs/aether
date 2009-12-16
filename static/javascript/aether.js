@@ -55,8 +55,15 @@ var headerBlacklist = {
   'PathID': 1,
   'ID': 1,
   'Calculated': 1,
-  'Cost': 1
-}
+  'Cost': 1,
+  'Alias': 1,
+  'Active': 1
+};
+
+jQuery.extend({
+  min: function(a, b) { return a < b ? a : b; },
+  max: function(a, b) { return a > b ? a : b; }
+});
 
 /**
  * Initializes Google Map and basic overlays.
@@ -90,7 +97,7 @@ function load() {
   var ftWorth = new GLatLng(32.896828000,-97.037997000);
   map.setCenter(ftWorth, 3);
   
-  var mgr = new MarkerClusterer(map, null, {maxZoom: 10, gridSize: 40});
+  var mgr = new MarkerManager(map);
 
   // Set up jQuery's AJAX options
   mapObj = map;
@@ -168,6 +175,11 @@ function updateTable_(headers, records) {
   var length = records.length;
   var rowCache = "";
   $.doTimeout('updateTable', 0, function() {
+    if (i >= length) {
+      $('#data > tbody:last').append(rowCache);
+      $('#loading').fadeOut('normal');
+      return false;
+    };
     trClass = (i % 2 == 0) ? 'even' : 'odd';
     rowCache += '<tr class="' + trClass + '">';
     $.each(headers, function(x, name) {
@@ -180,11 +192,6 @@ function updateTable_(headers, records) {
       $('#data > tbody:last').append(rowCache);
       rowCache = "";
     }
-    if (i >= length) {
-      $('#data > tbody:last').append(rowCache);
-      $('#loading').fadeOut('normal');
-      return false;
-    };
     return true;
   });
   tbl.tablesorter();
@@ -201,23 +208,24 @@ function updateMap_(points, routes, opt_clearFirst) {
     mapObj.clearOverlays();
   }
   
-  var markers = [];
   var i = 0;
   var length = points.length;
   $.doTimeout('placeMarkers', 0, function() {
-    var point = points[i];
-    var pos = new GLatLng(point['Latitude'], point['Longitude']);
-    var marker = new GMarker(pos);
-    markers.push(marker);
-    i++;
     if (i >= length) {
-      mgr.addMarkers(markers);
+      mgr.refresh();
+      $.log('Finished loading markers');
       return false;
     }
+    var point = points[i];
+    var size = point['NumRunways'];
+    var pos = new GLatLng(point['Latitude'], point['Longitude']);
+    var marker = new GMarker(pos);
+    
+    mgr.addMarker(marker, $.max(9 - size, 3));
+    i++;
     return true;
   });
 
-  mgr.resetViewport();
   var lineOptions = {geodesic: true};
   // $.each(routes, function(i, route) {
   //     var p1 = new GLatLng(route['srcLat'], route['srcLong']);
