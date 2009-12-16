@@ -10,7 +10,7 @@ var markerManager;
 var markersDone = false;
 var tablesDone = false;
 
-DEBUG = true;
+DEBUG = /localhost|192\.168\.\d+\.\d+/.test(window.location.hostname);
 /** If you update the queries object, make sure you update the hash in aether.rb! */
 var queries = {
   'AirlinesEnteringAirport': '9b',
@@ -73,6 +73,34 @@ jQuery.extend({
  * Initializes Google Map and basic overlays.
  */
 function load() {
+  setupNav_();
+  setupHandlers_();
+  
+  var map = new GMap2(document.getElementById('map'));
+  map.setMapType(G_HYBRID_MAP);
+  map.setUIToDefault();
+  map.addControl(new GOverviewMapControl());
+  
+  // For some reason, the marker manager will only work if the center is set.
+  var ftWorth = new GLatLng(32.896828000,-97.037997000);
+  map.setCenter(ftWorth, 3);
+  
+  var mgr = new MarkerManager(map);
+
+  // Set up jQuery's AJAX options
+  mapObj = map;
+  markerManager = mgr;
+};
+
+function unload() {
+  GUnload();
+};
+
+function setupNav_() {
+  $('#navigation').accordion({header: 'li.header'});
+};
+
+function setupHandlers_() {
   $('#mapToggle').click(function(e) {
     $('#map').slideToggle("normal");
     return false;
@@ -105,25 +133,6 @@ function load() {
       return false;
     });
   }
-  
-  var map = new GMap2(document.getElementById('map'));
-  map.setMapType(G_HYBRID_MAP);
-  map.setUIToDefault();
-  map.addControl(new GOverviewMapControl());
-  
-  // For some reason, the marker manager will only work if the center is set.
-  var ftWorth = new GLatLng(32.896828000,-97.037997000);
-  map.setCenter(ftWorth, 3);
-  
-  var mgr = new MarkerManager(map);
-
-  // Set up jQuery's AJAX options
-  mapObj = map;
-  markerManager = mgr;
-};
-
-function unload() {
-  GUnload();
 };
 
 /**
@@ -145,6 +154,7 @@ function makeRequestAndUpdate(query, data) {
   }
   data['id'] = queries[query] || '';
   if (!!query) {
+    $('#loading').fadeIn();
     $.getJSON('/ar', data, dataReceivedCallback_);
   }
 };
@@ -161,7 +171,9 @@ function dataReceivedCallback_(data) {
   }
   tablesDone = false;
   markersDone = false;
-  $('#loading').fadeIn('normal');
+  if ($('#loading').hidden()) {
+    $('#loading').fadeIn('normal');
+  }
   $('#pager').hide();
   updateMap_(data.map_points, data.map_routes, true);
   updateTable_(headers, data.records);
@@ -217,7 +229,7 @@ function updateTable_(headers, records) {
     if (i >= length) {
       $('#data').tablesorter({widthFixed: true});
       $.log('Setting up paginator...');
-      var pagerOpts = {container: $("#pager"), positionFixed: false};
+      var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > select').val()};
       $('#data').tablesorterPager(pagerOpts);
       $.log('...pagination complete');
       $('#pager').fadeIn();

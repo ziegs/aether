@@ -19,9 +19,23 @@
         %img{:src => "images/airplane_thumb.jpg"}
       #left_bar
         %ul.navigation
-          %li Airports
-          %li Airlines
-          %li Routes
+          %li.header
+            Airports
+            %div
+              %a{:href => "#", :id => 'AllAirportsInCountry'} Airports by Country
+              %a{:href => "#", :id => 'Elevation'} Airports by Elevation
+              %a{:href => "#", :id => 'AirportDistance'} Distance Between Airports
+              %a{:href => "#", :id => 'AirportTimeDifferences'} Time Change Between Airports
+              %a{:href => "#", :id => 'AllAirports'} All Airports
+          %li.header
+            Airlines
+            %div
+              %a{:href => "#", :id => 'AirlinesLeavingAirport'} Airlines by Airport (Departing)
+              %a{:href => "#", :id => 'AirlinesLeavingAirport'} Airlines by Airport (Arriving)
+          %li.header
+            Flights
+            %div
+              %a{:href => "#", :id => 'CostBetweenAirports'} Cheapest flight
       #content
         #mapOuter
           %ul.topNav
