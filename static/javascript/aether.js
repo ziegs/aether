@@ -6,7 +6,7 @@
 
 var mapObj;
 var markerManager;
-
+DEBUG = true;
 /** If you update the queries object, make sure you update the hash in aether.rb! */
 var queries = {
   'AirlinesEnteringAirport': '9b',
@@ -48,16 +48,28 @@ var num_params = {
   'CheapestFlight' : 2
 };
 
-function toggleMapCallback(e) {
-  $('#map').slideToggle("normal");
-  return false;
-};
-
 /**
  * Initializes Google Map and basic overlays.
  */
 function load() {
-  $('#mapToggle').click(toggleMapCallback);
+  $('#mapToggle').click(function(e) {
+    $('#map').slideToggle("normal");
+    return false;
+  });
+  
+  $('#toTable').click(function(e) {
+    $('html, body').animate({
+      scrollTop: $('#data').offset().top
+    });
+    return false;
+  });
+  
+  $('#toTop').click(function(e) {
+    $('html, body').animate({
+      scrollTop: 0
+    });
+    return false;
+  });
   
   var map = new GMap2(document.getElementById('map'));
   map.setMapType(G_HYBRID_MAP);
@@ -68,9 +80,7 @@ function load() {
   var ftWorth = new GLatLng(32.896828000,-97.037997000);
   map.setCenter(ftWorth, 7);
   
-  var mgr = new MarkerManager(map, {
-       trackMarkers: true
-     });
+  var mgr = new MarkerClusterer(map);
 
   // Set up jQuery's AJAX options
   mapObj = map;
@@ -157,14 +167,13 @@ function updateMap_(points, routes) {
   var mgr = markerManager;
   var markers = [];
   $.each(points, function(i, point) {
-    var pos = new GLatLng(point['Latitude'], point['Longitude']);
+    var pos = new GLatLng(point['lat'], point['long']);
     var marker = new GMarker(pos);
     markers.push(marker);
   });
   mgr.addMarkers(markers);
-  mgr.refresh();
   $.each(routes, function(i, route) {
-    
+    $.log('route');
   });
 };
 
