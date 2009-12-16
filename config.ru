@@ -5,7 +5,7 @@ path = ''
 
 set :root, path
 set :views, path + '/views'
-set :public,  path + '/static'
+set :public,  path + '/public'
 set :run, false
 set :environment, :production
 set :raise_errors, true
