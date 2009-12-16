@@ -13,13 +13,13 @@ body
   h1
     :float left
 #left_bar
-  +column(3)
-  ul
-    +no-bullets
-    li
-      display: none
+  +column(4)
+  #navigation
+    margin-top: 18px
+    div.ui-accordion-content
+      padding: 1px 6px
 #content
-  +column(20, "last")
+  +column(19, "last")
   ul
     +no-bullets
     +horizontal-list

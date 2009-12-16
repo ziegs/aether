@@ -97,7 +97,7 @@ function unload() {
 };
 
 function setupNav_() {
-  $('#navigation').accordion({header: 'li.header'});
+  $('#navigation').accordion({clearStyle: true, autoHeight: true, active: 0});
 };
 
 function setupHandlers_() {
@@ -171,7 +171,7 @@ function dataReceivedCallback_(data) {
   }
   tablesDone = false;
   markersDone = false;
-  if ($('#loading').hidden()) {
+  if (!$('#loading').is(':hidden')) {
     $('#loading').fadeIn('normal');
   }
   $('#pager').hide();
