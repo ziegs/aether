@@ -6,6 +6,10 @@
 
 var mapObj;
 var markerManager;
+
+var markersDone = false;
+var tablesDone = false;
+
 DEBUG = true;
 /** If you update the queries object, make sure you update the hash in aether.rb! */
 var queries = {
@@ -88,6 +92,12 @@ function load() {
     return false;
   });
   
+  $("#data").bind("sortStart",function() { 
+          $("#loading").fadeIn("normal"); 
+      }).bind("sortEnd",function() { 
+          $("#loading").fadeOut("normal"); 
+  });
+  
   var map = new GMap2(document.getElementById('map'));
   map.setMapType(G_HYBRID_MAP);
   map.setUIToDefault();
@@ -134,8 +144,21 @@ function dataReceivedCallback_(data) {
   if (data.records && data.records.length != 0) {
     headers = extractHeaders_(data.records[0]);
   }
+  tablesDone = false;
+  markersDone = false;
+  $('#loading').fadeIn('normal');
+  $('#pager').hide();
   updateMap_(data.map_points, data.map_routes, true);
   updateTable_(headers, data.records);
+  $.doTimeout('checkCompleteness', 200, function() {
+    if (tablesDone && markersDone) {
+      $('#loading').fadeOut('normal');
+      return false;
+    } else if (tablesDone){
+      $.log('tables done but not markers');
+    }
+    return true;
+  });
 };
 
 /**
@@ -158,7 +181,7 @@ function extractHeaders_(record) {
  * @private
  */
 function updateTable_(headers, records) {
-  $('#loading').fadeIn('normal');
+  tablesDone = false;
   var tbl = $('<table id="data" class="tablesorter"></table>');
   if (headers.length > 0) {
     var header = '<thead><tr>';
@@ -171,16 +194,23 @@ function updateTable_(headers, records) {
   var body = '<tbody></tbody>';
   tbl.append(body);
   $('#data').replaceWith(tbl);
+  $('#data').hide();
   var i = 0;
   var length = records.length;
   var rowCache = "";
   $.doTimeout('updateTable', 0, function() {
     if (i >= length) {
-      $('#data > tbody:last').append(rowCache);
-      $('#loading').fadeOut('normal');
+      $('#data').tablesorter({widthFixed: true});
+      $.log('Setting up paginator...');
+      var pagerOpts = {container: $("#pager"), positionFixed: false};
+      $('#data').tablesorterPager(pagerOpts);
+      $.log('...pagination complete');
+      $('#pager').fadeIn();
+      $('#data').fadeIn();
+      tablesDone = true;
       return false;
     };
-    trClass = (i % 2 == 0) ? 'even' : 'odd';
+    var trClass = i % 2 == 0 ? 'even' : 'odd';
     rowCache += '<tr class="' + trClass + '">';
     $.each(headers, function(x, name) {
       rowCache += '<td>' + records[i][name] + '</td>';
@@ -189,17 +219,15 @@ function updateTable_(headers, records) {
     i++;
     if (i % 25 == 0) {
       // Flush the rowcache and write some rows to the DOM
-      $('#data > tbody:last').append(rowCache);
+      $('#data').append(rowCache);
       rowCache = "";
+    }
+    if (i % 500 == 0) {
+      $.log('Finished ' + i + ' records...');
     }
     return true;
   });
-  tbl.tablesorter();
 };
-
-function addMarkerForPoint_(point, markers) {
-  
-}
 
 function updateMap_(points, routes, opt_clearFirst) {
   var mgr = markerManager;
@@ -213,6 +241,7 @@ function updateMap_(points, routes, opt_clearFirst) {
   $.doTimeout('placeMarkers', 0, function() {
     if (i >= length) {
       mgr.refresh();
+      markersDone = true;
       $.log('Finished loading markers');
       return false;
     }
