@@ -48,6 +48,16 @@ var num_params = {
   'CheapestFlight' : 2
 };
 
+var headerBlacklist = {
+  'Longitude': 1,
+  'Latitude': 1,
+  'NumRunways': 1,
+  'PathID': 1,
+  'ID': 1,
+  'Calculated': 1,
+  'Cost': 1
+}
+
 /**
  * Initializes Google Map and basic overlays.
  */
@@ -78,9 +88,9 @@ function load() {
   
   // For some reason, the marker manager will only work if the center is set.
   var ftWorth = new GLatLng(32.896828000,-97.037997000);
-  map.setCenter(ftWorth, 7);
+  map.setCenter(ftWorth, 3);
   
-  var mgr = new MarkerClusterer(map);
+  var mgr = new MarkerClusterer(map, null, {maxZoom: 10, gridSize: 40});
 
   // Set up jQuery's AJAX options
   mapObj = map;
@@ -103,7 +113,7 @@ function makeRequestAndUpdate(query, data) {
   data = data || {};
   data['id'] = queries[query] || '';
   if (!!query) {
-    $.getJSON('/ar/', data, dataReceivedCallback_);
+    $.getJSON('/ar', data, dataReceivedCallback_);
   }
 };
 
@@ -117,8 +127,8 @@ function dataReceivedCallback_(data) {
   if (data.records && data.records.length != 0) {
     headers = extractHeaders_(data.records[0]);
   }
+  updateMap_(data.map_points, data.map_routes, true);
   updateTable_(headers, data.records);
-  updateMap_(data.map_points, data.map_routes);
 };
 
 /**
@@ -128,7 +138,9 @@ function dataReceivedCallback_(data) {
 function extractHeaders_(record) {
   var headers = [];
   $.each(record, function(key, value) {
-    headers.push(key);
+    if (!headerBlacklist[key]) {
+      headers.push(key);
+    }
   });
   return headers;
 };
@@ -139,6 +151,7 @@ function extractHeaders_(record) {
  * @private
  */
 function updateTable_(headers, records) {
+  $('#loading').fadeIn('normal');
   var tbl = $('<table id="data" class="tablesorter"></table>');
   if (headers.length > 0) {
     var header = '<thead><tr>';
@@ -148,33 +161,70 @@ function updateTable_(headers, records) {
     header += '</tr></thead>';
     tbl.append(header);
   }
-  var body = '<tbody>';
-  $.each(records, function(i, record) {
-    trClass = (i % 2 == 0) ? 'even' : 'odd'
-    body += '<tr class="' + trClass + '">'
-    $.each(record, function(j, data) {
-      body += '<td>' + data + '</td>';
-    });
-    body += '</tr>'
-  });
-  body += '</tbody>';
+  var body = '<tbody></tbody>';
   tbl.append(body);
   $('#data').replaceWith(tbl);
+  var i = 0;
+  var length = records.length;
+  var rowCache = "";
+  $.doTimeout('updateTable', 0, function() {
+    trClass = (i % 2 == 0) ? 'even' : 'odd';
+    rowCache += '<tr class="' + trClass + '">';
+    $.each(headers, function(x, name) {
+      rowCache += '<td>' + records[i][name] + '</td>';
+    });
+    rowCache += '</tr>';
+    i++;
+    if (i % 25 == 0) {
+      // Flush the rowcache and write some rows to the DOM
+      $('#data > tbody:last').append(rowCache);
+      rowCache = "";
+    }
+    if (i >= length) {
+      $('#data > tbody:last').append(rowCache);
+      $('#loading').fadeOut('normal');
+      return false;
+    };
+    return true;
+  });
   tbl.tablesorter();
 };
 
-function updateMap_(points, routes) {
+function addMarkerForPoint_(point, markers) {
+  
+}
+
+function updateMap_(points, routes, opt_clearFirst) {
   var mgr = markerManager;
+  if (!!opt_clearFirst) {
+    mgr.clearMarkers();
+    mapObj.clearOverlays();
+  }
+  
   var markers = [];
-  $.each(points, function(i, point) {
-    var pos = new GLatLng(point['lat'], point['long']);
+  var i = 0;
+  var length = points.length;
+  $.doTimeout('placeMarkers', 0, function() {
+    var point = points[i];
+    var pos = new GLatLng(point['Latitude'], point['Longitude']);
     var marker = new GMarker(pos);
     markers.push(marker);
+    i++;
+    if (i >= length) {
+      mgr.addMarkers(markers);
+      return false;
+    }
+    return true;
   });
-  mgr.addMarkers(markers);
-  $.each(routes, function(i, route) {
-    $.log('route');
-  });
+
+  mgr.resetViewport();
+  var lineOptions = {geodesic: true};
+  // $.each(routes, function(i, route) {
+  //     var p1 = new GLatLng(route['srcLat'], route['srcLong']);
+  //     var p2 = new GLatLng(route['destLat'], route['destLong']);
+  //     var line = new GPolyline([p1, p2], '#ff0000', 1, 1, lineOptions);
+  //     mapObj.addOverlay(line);
+  //   });
 };
 
 // REMOVE EVENTUALLY
@@ -182,9 +232,9 @@ function toyData() {
   var data = {
     'records': [{'Name': 'LaGuardia', 'IATA': 'LGA', 'City': 'New York', 'Country': 'United States'},
                 {'Name': 'Dallas-Ft. Worth', 'IATA': 'DFW', 'City': 'Dallas/Ft. Worth', 'Country': 'United States'}],
-    'map_points': [{'id': 3697, 'lat': 40.777245, 'long': -73.872608},
-            {'id': 3670, 'lat': 32.896828, 'long': -97.037997}],
-    'map_routes': [{'src': [40.777245, -73.872608], 'dst': [32.896828, -97.037997]}]
+    'map_points': [{'ID': 3697, 'Latitude': 40.777245, 'Longitude': -73.872608},
+            {'ID': 3670, 'Latitude': 32.896828, 'Longitude': -97.037997}],
+    'map_routes': [{'srcLat': 40.777245, 'srcLong': -73.872608, 'destLat': 32.896828, 'destLong': -97.037997}]
   };
   dataReceivedCallback_(data);
 };
