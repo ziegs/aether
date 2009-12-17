@@ -280,6 +280,7 @@ function updateMap_(points, routes, opt_clearFirst) {
   
   var i = 0;
   var length = points.length;
+  $.log('markers');
   $.doTimeout('placeMarkers', 0, function() {
     if (i >= length) {
       mgr.refresh();
@@ -297,8 +298,8 @@ function updateMap_(points, routes, opt_clearFirst) {
     return true;
   });
 
-  i = 0;
-  length = routes.length;
+  var j = 0;
+  var edgeLength = routes.length;
   var lineOptions = {geodesic: true};
   // There are OMG SO MANY ROUTES
   // $.doTimeout('placeLines', 0, function() {
