@@ -8,6 +8,12 @@ require 'sass'
 require 'compass'
 require 'mysql'
 
+if production?
+  require '/var/aether/db.rb'
+else
+  require 'config/db.rb'
+end
+
 # If you update the queries hash, make sure you update the object in aether.js!
 queries = {
   '1' => 'AllAirports',
@@ -49,7 +55,7 @@ num_params = {
   'CheapestFlight' => 2
 }
 
-DB = Mysql.new "einstein.cs.jhu.edu", "mziegel", "xe0QuiuX", "aether_dev", 3306, nil, Mysql::CLIENT_MULTI_RESULTS
+DB = Mysql.new $db_conf[:host], $db_conf[:username], $db_conf[:password], $db_conf[:database], $db_conf[:port], nil, Mysql::CLIENT_MULTI_RESULTS
 DB.query_with_result=false
 
 configure do

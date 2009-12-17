@@ -29,6 +29,10 @@
             %br/
             %a{:href => "#", :id => 'Elevation'} Airports by Elevation
             %br/
+            %a{:href => "#", :id => 'AirportsAirlineServices'} Airports by Airline
+            %br/
+            %a{:href => "#", :id => 'CostBetweenAirports'} Destinations from Airport (Direct Only)
+            %br/
             %a{:href => "#", :id => 'AirportDistance'} Distance Between Airports
             %br/
             %a{:href => "#", :id => 'AirportTimeDifferences'} Time Change Between Airports
@@ -40,14 +44,20 @@
           %div{:class => 'ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom'}
             %a{:href => "#", :id => 'AirlinesLeavingAirport'} Airlines by Airport (Departing)
             %br/
-            %a{:href => "#", :id => 'AirlinesLeavingAirport'} Airlines by Airport (Arriving)
+            %a{:href => "#", :id => 'AirlinesEnteringAirport'} Airlines by Airport (Arriving)
             %br/
             %a{:href => "#", :id => 'AllAirlines'} All Airlines
           %h3{:class => 'ui-accordion-header ui-helper-reset ui-state-default ui-corner-all'}
             %span{:class => 'ui-icon ui-icon-triangle-1-e'}
             %a{:href => "#"} Flights
           %div{:class => 'ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom'}
-            %a{:href => "#", :id => 'CostBetweenAirports'} Cheapest flight
+            %a{:href => "#", :id => 'RoutesAirlineServices'} Flights by Airline
+            %br/
+            %a{:href => "#", :id => 'ShortestFlight'} Shortest flight
+            %br/
+            %a{:href => "#", :id => 'CheapestFlight'} Cheapest flight
+            %br/
+            %a{:href => "#", :id => 'CostBetweenAirports'} All flights between airports by price
             %br/
             %a{:href => "#", :id => 'AllRoutes'} All Flights
       #content
