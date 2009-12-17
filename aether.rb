@@ -176,3 +176,26 @@ get '/rr' do
     return {}.to_json
   end
 end
+
+# Auto-fill helper
+get '/autofill' do
+  content_type = 'text/json'
+  table = params[:cat]
+  cat = params[:type]
+  text = params[:q]
+  begin
+    DB.query("SELECT DISTINCT #{cat} FROM #{table} WHERE #{cat} LIKE \"#{text}%\" LIMIT 5")
+    result = DB.use_result
+    rh = Array.new
+    while row = result.fetch_hash do
+      rh.push(row)
+    end
+    result.free
+    if rh.empty?
+      return {}.to_json
+    end
+    return rh.to_json
+  rescue Mysql::Error => e
+    return {}.to_json
+  end
+end

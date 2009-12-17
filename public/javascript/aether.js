@@ -83,7 +83,7 @@ var callbacks = {
   'CostBetweenAirports': NULL_CALLBACK,
   'DestinationsFromAirport': NULL_CALLBACK,
   'RoutesAirlineServices': NULL_CALLBACK,
-  'AllAirportsInCountry': NULL_CALLBACK,
+  'AllAirportsInCountry': allAirportsInCountryCallback_,
   'AirlinesBetweenCities': NULL_CALLBACK,
   'ShortestFlight': NULL_CALLBACK,
   'CheapestFlight': NULL_CALLBACK,
@@ -344,6 +344,20 @@ function allAirportsCallback_(e) {
     }
   };
   makeModalDialog('Warning', MSG_LONG_QUERY, buttons);
+  return false;
+};
+
+function allAirportsCallback_(e) {
+  var buttons = {
+    Ok: function() {
+      makeRequestAndUpdate('AllAirports', {});
+      $(this).dialog('close');
+    },
+    Cancel: function() {
+      $(this).dialog('close');
+    }
+  };
+  makeRequestDialog('Warning', MSG_LONG_QUERY, buttons);
   return false;
 };
 
