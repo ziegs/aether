@@ -98,6 +98,17 @@ function unload() {
 
 function setupNav_() {
   $('#navigation').accordion({clearStyle: true, autoHeight: true, active: 0});
+  $('#navigation > div > a').each(function(i, link) {
+    var callback = function() { $.log('Nothing to see here...'); };
+    switch (link.id) {
+      case 'AllAirports':
+        callback = allAirportsCallback_;
+        break;
+      default:
+        //pass
+    }
+    $(link).click(callback);
+  });
 };
 
 function setupHandlers_() {
@@ -125,14 +136,6 @@ function setupHandlers_() {
       }).bind("sortEnd",function() { 
           $("#loading").fadeOut("normal"); 
   });
-  
-  if (DEBUG) {
-    $('.topNav').append('<li>|</li><li><a href="#" id="debugQuery">Click to run sample query</a></li>');
-    $('#debugQuery').click(function(e) {
-      makeRequestAndUpdate('AllAirports', {});
-      return false;
-    });
-  }
 };
 
 /**
@@ -151,6 +154,8 @@ function makeRequestAndUpdate(query, data) {
     case 'AllRoutes':
       // warn
       $.log('Warning!');
+    default:
+      //pass
   }
   data['id'] = queries[query] || '';
   if (!!query) {
@@ -209,6 +214,7 @@ function extractHeaders_(record) {
  */
 function updateTable_(headers, records) {
   tablesDone = false;
+  $('#progress').progressbar({value: 0});
   var tbl = $('<table id="data" class="tablesorter"></table>');
   if (headers.length > 0) {
     var header = '<thead><tr>';
@@ -244,6 +250,7 @@ function updateTable_(headers, records) {
     });
     rowCache += '</tr>';
     i++;
+    $('#progress').progressbar('option', 'value', (i/length) * 100);
     if (i % 25 == 0) {
       // Flush the rowcache and write some rows to the DOM
       $('#data').append(rowCache);
@@ -289,6 +296,39 @@ function updateMap_(points, routes, opt_clearFirst) {
   //     var line = new GPolyline([p1, p2], '#ff0000', 1, 1, lineOptions);
   //     mapObj.addOverlay(line);
   //   });
+};
+
+function makeModalDialog(title, text, buttonObj) {
+  $("#dialog").text(text);
+  $("#dialog").dialog({
+    bgiframe: false,
+    resizable: false,
+    //height:300,
+    modal: true,
+    title: title,
+    overlay: {
+      backgroundColor: '#000',
+      opacity: 0.5
+    },
+    buttons: buttonObj
+  });
+};
+
+// Query callbacks. These should probably be in a different file or come from the server. Oops.
+function allAirportsCallback_(e) {
+  var msg = 'This query can take more than a minute to run. If you want ' +
+      'to continue, press continue below, otherwise please click cancel.';
+  var buttons = {
+    'Continue': function() {
+      makeRequestAndUpdate('AllAirports', {});
+      $(this).dialog('close');
+    },
+    Cancel: function() {
+      $(this).dialog('close');
+    }
+  };
+  makeModalDialog('Warning', msg, buttons);
+  return false;
 };
 
 // REMOVE EVENTUALLY
