@@ -94,7 +94,7 @@ get '/ar' do
   end
   
   sql_params = Array.new
-  1.upto(param_length) { |i| sql_params.push(params[("p#{i}").to_sym]) }
+  1.upto(param_length) { |i| sql_params.push(DB.escape_string(params[("p#{i}").to_sym])) }
   
   # Call query, return all result tables in JSON form
   # Return headers:{header1 ... headern} records:{SELECT *} map_points: {aiport_id, lat, long} map_routes:{lat, long, lat, long}
@@ -141,7 +141,7 @@ get '/ir' do
   else
     return {}.to_json
   end
-  id = params[:aid]
+  id = DB.escape_string(params[:aid])
   begin
     DB.query("SELECT * FROM #{table} WHERE #{table}.ID = #{id} LIMIT 1")
     result = DB.use_result
@@ -159,9 +159,9 @@ end
 # Route requests
 get '/rr' do
   content_type = 'text/json'
-  airline_id = params[:aid]
-  source_id = params[:src]
-  dest_id = params[:dst]
+  airline_id = DB.escape_string(params[:aid])
+  source_id = DB.escape_string(params[:src])
+  dest_id = DB.escape_string(params[:dst])
   begin
     DB.query("SELECT * FROM Routes WHERE Routes.AirlineID = #{airline_id}" + 
       " AND Routes.SourceID = #{source_id} AND Routes.DestID = #{dest_id}")
@@ -180,9 +180,9 @@ end
 # Auto-fill helper
 get '/autofill' do
   content_type = 'text/json'
-  table = params[:cat]
-  cat = params[:type]
-  text = params[:q]
+  table = DB.escape_string(params[:cat])
+  cat = DB.escape_string(params[:type])
+  text = DB.escape_string(params[:q])
   begin
     DB.query("SELECT DISTINCT #{cat} FROM #{table} WHERE #{cat} LIKE \"#{text}%\" LIMIT 5")
     result = DB.use_result

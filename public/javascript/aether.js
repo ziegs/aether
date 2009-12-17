@@ -347,7 +347,7 @@ function allAirportsCallback_(e) {
   return false;
 };
 
-function allAirportsCallback_(e) {
+function allAirportsInCountryCallback_(e) {
   var buttons = {
     Ok: function() {
       makeRequestAndUpdate('AllAirports', {});
