@@ -4,7 +4,7 @@ DROP PROCEDURE IF EXISTS AllAirports\\
 CREATE PROCEDURE AllAirports()
 BEGIN
 	SELECT * FROM Airports;
-	SELECT ID, Latitude, Longitude FROM Airports;
+	SELECT ID, Latitude, Longitude, NumRunways FROM Airports;
 END\\
 
 DROP PROCEDURE IF EXISTS AllAirlines\\
@@ -17,14 +17,14 @@ DROP PROCEDURE IF EXISTS AllAirportsInCountry\\
 CREATE PROCEDURE AllAirportsInCountry(IN Country VARCHAR(255))
 BEGIN
 	SELECT * FROM Airports WHERE Airports.Country = Country;
-	SELECT ID, Latitude, Longitude FROM Airports WHERE Airports.Country = Country;
+	SELECT ID, Latitude, Longitude, NumRunways FROM Airports WHERE Airports.Country = Country;
 END\\
 
 DROP PROCEDURE IF EXISTS AllRoutes\\
 CREATE PROCEDURE AllRoutes()
 BEGIN
 	SELECT * FROM Routes;
-	SELECT Airports.ID, Latitude, Longitude FROM ((SELECT DISTINCT DestID AS ID FROM Routes) UNION DISTINCT (SELECT DISTINCT SourceID AS ID FROM Routes)) AS ids INNER JOIN Airports ON Airports.ID = ids.ID;
+	SELECT Airports.ID, Latitude, Longitude, NumRunways FROM ((SELECT DISTINCT DestID AS ID FROM Routes) UNION DISTINCT (SELECT DISTINCT SourceID AS ID FROM Routes)) AS ids INNER JOIN Airports ON Airports.ID = ids.ID;
 	SELECT A1.Latitude AS srcLat, A1.Longitude AS srcLong, A2.Latitude AS destLat, A2.Longitude as destLong FROM Airports A1 INNER JOIN Routes R ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID;
 END\\
 
