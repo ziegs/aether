@@ -10,6 +10,11 @@ var markerManager;
 var markersDone = false;
 var tablesDone = false;
 
+var NULL_CALLBACK = function() { $.log('Nothing to see here...'); };
+
+var MSG_LONG_QUERY = 'This query can take more than a minute to run. If you ' +
+    'want to continue, press continue below, otherwise please click cancel.';
+
 DEBUG = /localhost|192\.168\.\d+\.\d+/.test(window.location.hostname);
 /** If you update the queries object, make sure you update the hash in aether.rb! */
 var queries = {
@@ -64,6 +69,26 @@ var headerBlacklist = {
   'Active': 1
 };
 
+var callbacks = {
+  'AirlinesEnteringAirport': NULL_CALLBACK,
+  'AirlinesLeavingAirport': NULL_CALLBACK,
+  'AirportAtMaxElevation': NULL_CALLBACK,
+  'AirportAtMinElevation': NULL_CALLBACK,
+  'AirportDistance': NULL_CALLBACK,
+  'AirportTimeDifference': NULL_CALLBACK,
+  'AirportsAirlineServices': NULL_CALLBACK,
+  'AllAirlines': allAirlinesCallback_,
+  'AllAirports': allAirportsCallback_,
+  'AllRoutes': allRoutesCallback_,
+  'CostBetweenAirports': NULL_CALLBACK,
+  'DestinationsFromAirport': NULL_CALLBACK,
+  'RoutesAirlineServices': NULL_CALLBACK,
+  'AllAirportsInCountry': NULL_CALLBACK,
+  'AirlinesBetweenCities': NULL_CALLBACK,
+  'ShortestFlight': NULL_CALLBACK,
+  'CheapestFlight': NULL_CALLBACK,
+};
+
 jQuery.extend({
   min: function(a, b) { return a < b ? a : b; },
   max: function(a, b) { return a > b ? a : b; }
@@ -99,15 +124,7 @@ function unload() {
 function setupNav_() {
   $('#navigation').accordion({clearStyle: true, autoHeight: true, active: 0});
   $('#navigation > div > a').each(function(i, link) {
-    var callback = function() { $.log('Nothing to see here...'); };
-    switch (link.id) {
-      case 'AllAirports':
-        callback = allAirportsCallback_;
-        break;
-      default:
-        //pass
-    }
-    $(link).click(callback);
+    $(link).click(callbacks[link.id]);
   });
 };
 
@@ -148,15 +165,6 @@ function setupHandlers_() {
  */
 function makeRequestAndUpdate(query, data) {
   data = data || {};
-  switch (query) {
-    case 'AllAirports':
-    case 'AllAirlines':
-    case 'AllRoutes':
-      // warn
-      $.log('Warning!');
-    default:
-      //pass
-  }
   data['id'] = queries[query] || '';
   if (!!query) {
     $('#loading').fadeIn();
@@ -289,12 +297,21 @@ function updateMap_(points, routes, opt_clearFirst) {
     return true;
   });
 
+  i = 0;
+  length = routes.length;
   var lineOptions = {geodesic: true};
-  // $.each(routes, function(i, route) {
+  // There are OMG SO MANY ROUTES
+  // $.doTimeout('placeLines', 0, function() {
+  //     if (i >= length) {
+  //       return false;
+  //     }
+  //     var route = routes[i];
   //     var p1 = new GLatLng(route['srcLat'], route['srcLong']);
   //     var p2 = new GLatLng(route['destLat'], route['destLong']);
   //     var line = new GPolyline([p1, p2], '#ff0000', 1, 1, lineOptions);
   //     mapObj.addOverlay(line);
+  //     i++;
+  //     return true;
   //   });
 };
 
@@ -316,8 +333,6 @@ function makeModalDialog(title, text, buttonObj) {
 
 // Query callbacks. These should probably be in a different file or come from the server. Oops.
 function allAirportsCallback_(e) {
-  var msg = 'This query can take more than a minute to run. If you want ' +
-      'to continue, press continue below, otherwise please click cancel.';
   var buttons = {
     'Continue': function() {
       makeRequestAndUpdate('AllAirports', {});
@@ -327,7 +342,35 @@ function allAirportsCallback_(e) {
       $(this).dialog('close');
     }
   };
-  makeModalDialog('Warning', msg, buttons);
+  makeModalDialog('Warning', MSG_LONG_QUERY, buttons);
+  return false;
+};
+
+function allRoutesCallback_(e) {
+  var buttons = {
+    'Continue': function() {
+      makeRequestAndUpdate('AllRoutes', {});
+      $(this).dialog('close');
+    },
+    Cancel: function() {
+      $(this).dialog('close');
+    }
+  };
+  makeModalDialog('Warning', MSG_LONG_QUERY, buttons);
+  return false;
+};
+
+function allAirlinesCallback_(e) {
+  var buttons = {
+    'Continue': function() {
+      makeRequestAndUpdate('AllAirlines', {});
+      $(this).dialog('close');
+    },
+    Cancel: function() {
+      $(this).dialog('close');
+    }
+  };
+  makeModalDialog('Warning', MSG_LONG_QUERY, buttons);
   return false;
 };
 
