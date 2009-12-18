@@ -1,5 +1,5 @@
 .DS_Store
 */.DS_Store
 .sass-cache/
-static/images/*.ai
+public/images/*.ai
 config/db.rb
