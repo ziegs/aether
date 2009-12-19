@@ -1,0 +1,172 @@
+\documentclass[12pt]{article}
+
+\usepackage{hyperref}
+\usepackage{fullpage}
+\hypersetup{colorlinks=false}
+
+
+\author{Matt Ziegelbaum \& Parker Shelton\\\texttt{mziegelbaum@acm.jhu.edu}, \texttt{parker.shelton@jhu.edu}}
+\title{600.415---Database Systems --- Final Project Phase I}
+\date{\today}
+\begin{document}
+  \maketitle
+  
+  \section{Project Members:}
+  \begin{itemize}
+    \item Matt Ziegelbaum
+    \item Parker Shelton
+  \end{itemize}
+  
+  \section{Target Domain}
+  We plan to develop a system that allows users to make queries for information about international air travel. We plan on supporting queries regarding airlines, airports, and routes, as well as equipment (airplanes) used by the various airlines.
+  
+  \section{Questions}
+  \begin{enumerate}
+    \item List all the airports in the database.
+    \item List all airlines in the database.
+    \item List all routes in the database.
+    \item List all airlines that fly between two cities.
+    \item List all cities an airline services.
+    \item List all airlines that service the exact same cities.
+    \item List all routes that an airline flies.
+    \item List the fewest number of stops between any two cities (including direct flights).
+    \item List all airlines that fly out of a city.
+    \item List all possible destinations from a given airport.
+    \item Compute the straight line distance between two airports.
+    \item Compute the time difference between two airports.
+    \item Compute the local time for arrival and departures of a flight given a departure time in UTC.
+    \item Compute the number flights an airport can service per hour/day/year.
+    \item Compute the number of passengers per route.
+    \item Estimate the cost to fly between two airports.
+    \item Estimate the fuel cost to fly between two airports.
+    \item Estimate the cost of the cheapest flight (or series of flights) between two airports.
+    \item List the airport with the highest/lowest elevation.
+  \end{enumerate}
+  
+  \section{Design}
+    \begin{verbatim}
+      CREATE TABLE Airports (
+        id INT NOT NULL primary key,
+        Name VARCHAR(255),
+        City VARCHAR(255),
+        Country VARCHAR(255),
+        IATA VARCHAR(3) NOT NULL unique key,
+        ICAO VARCHAR(4) NOT NULL unique key,
+        Latitude DECIMAL(9),
+        Longitude DECIMAL(9),
+        Altitude INT,
+        Timezone INT,
+        DST CHAR,
+        NumRunways INT
+      );
+      
+      CREATE TABLE Airlines (
+        id INT NOT NULL primary key,
+        Name VARCHAR(255),
+        Alias VARCHAR(255),
+        IATA VARCHAR(2),
+        ICAO VARCHAR(3) NOT NULL,
+        Callsign VARCHAR(255),
+        Country VARCHAR(255),
+        Active CHAR
+      );
+      
+      CREATE TABLE Routes (
+        Airline VARCHAR(3) NOT NULL,
+        AirlineID INT,
+        Source VARCHAR(4),
+        SourceID INT,
+        Dest VARCHAR(4),
+        DestID INT,
+        Codeshare CHAR,
+        Stops INT,
+        Equipment VARCHAR(255),
+        TicketPrice INT
+      );
+      
+      CREATE TABLE Equipment (
+        id VARCHAR(3) NOT NULL primary key,
+        Name VARCHAR(255),
+        Passengers INT,
+        Fuel INT,
+      );
+    \end{verbatim}
+  \section{Sample SQL Statements}
+  \begin{enumerate}
+  \item[\#7]
+  \begin{verbatim}
+    CREATE PROCEDURE AirlineRoutes(IN airline1 VARCHAR(255))
+    BEGIN
+      SELECT R.* FROM Airlines A, Routes R
+      WHERE (A.Name = airline1 OR A.IATA = airline1 OR A.ICAO = airline1) 
+          AND
+        R.AirlineID = A.id;
+    END
+  \end{verbatim}
+  {\tiny (The above takes either an IATA/FCC code, ICAO code, or full name.)} 
+  \item[\#9a]
+  \begin{verbatim}
+  CREATE PROCEDURE AirlinesFromCity(IN city VARCHAR(255))
+  BEGIN
+    SELECT L.Name AS Airlines
+    FROM Routes R INNER JOIN Airports A ON R.SourceID = A.ID
+    INNER JOIN Airlines L ON L.ID = R.AirlineID WHERE A.City = city;
+  END
+  \end{verbatim}
+  \item[\#9b]
+  \begin{verbatim}
+  CREATE PROCEDURE AirlinesToCity(IN city VARCHAR(255))
+  BEGIN
+    SELECT L.Name AS Airlines
+    FROM Routes R INNER JOIN Airports A ON R.DestID = A.ID
+    INNER JOIN Airlines L ON L.ID = R.AirlineID WHERE A.City = city;
+  END
+  \end{verbatim}
+  \item[\#11]
+  \begin{verbatim}
+  CREATE PROCEDURE AirportDistance(IN airport1 INT, IN airport2 INT)
+  BEGIN
+    SELECT SQRT(POW((A1.latitude - A2.latitude), 2)
+        + POW((A1.longitude - A2.longitude), 2))
+    AS Distance FROM Airport A1, Airport A2
+    WHERE A1.id = airport1 AND A2.id = airport2;
+  END
+  \end{verbatim}
+  {\tiny (The above does not take into account the curvature of the  earth.)}
+  \item[\#12] 
+  \begin{verbatim}
+    CREATE PROCEDURE AirportTimeDifference(IN airport1 INT,
+        IN airport2 INT, OUT diff INT)
+      SELECT A1.Timezone - A2.Timezone INTO diff
+      FROM Airport A1, Airport A2 WHERE
+        A1.id = airport1 AND A2.id = airport2;
+    END
+  \end{verbatim}
+  \item[\#19a]
+  \begin{verbatim}
+    CREATE PROCEDURE HighestElevationAirport(OUT aout INT)
+      SELECT MAX(Altitude) INTO aout FROM Airports;
+    END
+  \end{verbatim}
+  \item[\#19b]
+  \begin{verbatim}
+    CREATE PROCEDURE LowestElevationAirport(OUT aout INT)
+      SELECT MIN(Altitude) INTO aout FROM Airports;
+    END
+  \end{verbatim}
+  \end{enumerate}
+  \section{Database Population}
+    We will load the database with values by importing from CSV files. The CSV files come from \href{http://www.openflights.org}{OpenFlights.org}, \href{http://www.arm.64hosts.com}{AirlineRouteMapper} (\url{arm.64hosts.com}), and \href{http://www.ourairports.com}{OurAirports.com}.  Additional data on equipment will be extracted from various web sources.\footnote{Teh interwebs}
+    
+    Ticket prices will be generated by an algorithm\footnote{To be determined how the heuristic works.} at database population time.
+  \section{User Interface}
+  We plan on focussing on an advanced web GUI using the Google Maps API, JavaScript, and CSS. The Maps API will be used to display routes, pinpoint airports, and overlay data about routes, airports, and airlines.
+  \section{Advanced Topics}
+    \begin{enumerate}
+      \item Advanced GUI (See previous section)
+      \item Data mining -- See database population.
+      \item Complex data extraction -- We have a ``dirty'' data set, in that our data is not perfectly formatted and is missing information. We must extrapolate and add additional information from a number of different sources.
+    \end{enumerate}
+  \section{Database Platform}
+  We will be developing with MySQL 5.1.x on OS X with Core 2 Duo 2.66Ghz.\footnote{We both have almost matching Macbook Pros} Our backend will be written in Ruby using the Sinatra web framework and the Ruby MySQL connector. The front end will be developed using HTML, CSS, and JavaScript. We will deploy on a Core 2 Duo 3.0Ghz with 8GB of RAM.\footnote{The JHU ACM Web server}
+\end{document}
