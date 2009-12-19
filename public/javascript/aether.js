@@ -59,18 +59,6 @@ var num_params = {
   'CheapestFlight' : 2
 };
 
-var headerBlacklist = {
-  'Longitude': 1,
-  'Latitude': 1,
-  'NumRunways': 1,
-  'PathID': 1,
-  'ID': 1,
-  'Calculated': 1,
-  'Cost': 1,
-  'Alias': 1,
-  'Active': 1
-};
-
 var callbacks = {
   'AirlinesEnteringAirport': NULL_CALLBACK,
   'AirlinesLeavingAirport': NULL_CALLBACK,
@@ -210,9 +198,7 @@ function dataReceivedCallback_(data) {
 function extractHeaders_(record) {
   var headers = [];
   $.each(record, function(key, value) {
-    if (!headerBlacklist[key]) {
       headers.push(key);
-    }
   });
   return headers;
 };
