@@ -2,6 +2,7 @@
 */.DS_Store
 .sass-cache/
 public/images/*.ai
+public/imaegs/*.psd
 config/db.rb
 docs/*.log
 docs/*.aux

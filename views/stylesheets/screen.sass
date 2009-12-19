@@ -2,7 +2,6 @@
  
 +blueprint-typography("body")
 
-
 body
   +blueprint-typography(true)
   .container
@@ -10,8 +9,10 @@ body
     :width 99%
 #header
   +column(24)
-  h1
-    :float left
+  :text-align center
+#footer
+  +column(24)
+  :text-align center
 #left_bar
   +column(4)
   #navigation

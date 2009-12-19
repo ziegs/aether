@@ -12,8 +12,8 @@ var tablesDone = false;
 
 var NULL_CALLBACK = function() { $.log('Nothing to see here...'); };
 
-var MSG_LONG_QUERY = 'This query can take more than a minute to run and returns' +
-    'a large amount of data. If you wish to continue, press continue. Otherwise,' +
+var MSG_LONG_QUERY = 'This query can take more than a minute to run and returns ' +
+    'a large amount of data. If you wish to continue, press continue. Otherwise, ' +
     'please click cancel.';
 
 DEBUG = /localhost|192\.168\.\d+\.\d+/.test(window.location.hostname);
