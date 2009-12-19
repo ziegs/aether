@@ -3,3 +3,6 @@
 .sass-cache/
 public/images/*.ai
 config/db.rb
+docs/*.log
+docs/*.aux
+docs/*.out
