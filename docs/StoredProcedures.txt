@@ -4,7 +4,7 @@ DELIMITER \\
 DROP PROCEDURE IF EXISTS AllAirports\\
 CREATE PROCEDURE AllAirports()
 BEGIN
-	SELECT Name, City, Country, IATA, IACO, Altitude, Timezone, DST FROM Airports;
+	SELECT Name, City, Country, IATA, ICAO, Altitude, Timezone, DST FROM Airports;
 	SELECT ID, Latitude, Longitude, NumRunways FROM Airports;
 END\\
 
@@ -19,7 +19,7 @@ END\\
 DROP PROCEDURE IF EXISTS AllAirportsInCountry\\
 CREATE PROCEDURE AllAirportsInCountry(IN Country VARCHAR(255))
 BEGIN
-	SELECT Name, City, Country, IATA, IACO, Altitude, Timezone, DST FROM Airports WHERE Airports.Country = Country;
+	SELECT Name, City, Country, IATA, ICAO, Altitude, Timezone, DST FROM Airports WHERE Airports.Country = Country;
 	SELECT ID, Latitude, Longitude, NumRunways FROM Airports WHERE Airports.Country = Country;
 END\\
 
@@ -51,7 +51,7 @@ END\\
 DROP PROCEDURE IF EXISTS AirportsAirlineServices\\
 CREATE PROCEDURE AirportsAirlineServices(IN Airline INT)
 BEGIN
-	SELECT A.Name, A.City, A.Country, A.IATA, A.IACO, A.Altitude, A.Timezone, A.DST FROM ((SELECT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline) UNION DISTINCT (SELECT SourceID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
+	SELECT A.Name, A.City, A.Country, A.IATA, A.ICAO, A.Altitude, A.Timezone, A.DST FROM ((SELECT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline) UNION DISTINCT (SELECT SourceID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
 	SELECT ID, Latitude, Longitude, NumRunways FROM ((SELECT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline) UNION DISTINCT (SELECT SourceID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
 END \\
 
@@ -108,7 +108,7 @@ END \\
 DROP PROCEDURE IF EXISTS DestinationsFromAirport\\
 CREATE PROCEDURE DestinationsFromAirport(IN Airport INT)
 BEGIN
-	SELECT A.Name, A.City, A.Country, A.IATA, A.IACO, A.Altitude, A.Timezone, A.DST FROM Routes R INNER JOIN Airports A ON R.DestID = A.ID WHERE R.SourceID = Airport;
+	SELECT A.Name, A.City, A.Country, A.IATA, A.ICAO, A.Altitude, A.Timezone, A.DST FROM Routes R INNER JOIN Airports A ON R.DestID = A.ID WHERE R.SourceID = Airport;
 	SELECT ID, Latitude, Longitude, NumRunways FROM ((SELECT DISTINCT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Routes.SourceID = Airport)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
 	SELECT DISTINCT A1.Latitude as srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2, Routes R WHERE R.SourceID = A1.ID AND R.DestID = A2.ID AND R.SourceID = Airport;
 END\\
@@ -182,7 +182,7 @@ END\\
 DROP PROCEDURE IF EXISTS AirportAtMaxElevation\\
 CREATE PROCEDURE AirportAtMaxElevation()
 BEGIN
-	SELECT Name, City, Country, IATA, IACO, Altitude, Timezone, DST FROM Airports A WHERE A.Altitude >= ALL(SELECT Altitude FROM Airports);
+	SELECT Name, City, Country, IATA, ICAO, Altitude, Timezone, DST FROM Airports A WHERE A.Altitude >= ALL(SELECT Altitude FROM Airports);
 	SELECT ID, Latitude, Longitude, NumRunways FROM Airports A WHERE A.Altitude >= ALL(SELECT Altitude FROM Airports);
 END \\
 
@@ -190,7 +190,7 @@ END \\
 DROP PROCEDURE IF EXISTS AirportAtMinElevation\\
 CREATE PROCEDURE AirportAtMinElevation()
 BEGIN
-	SELECT Name, City, Country, IATA, IACO, Altitude, Timezone, DST FROM Airports A WHERE A.Altitude <= ALL(SELECT Altitude FROM Airports);
+	SELECT Name, City, Country, IATA, ICAO, Altitude, Timezone, DST FROM Airports A WHERE A.Altitude <= ALL(SELECT Altitude FROM Airports);
 	SELECT ID, Latitude, Longitude, NumRunways FROM Airports A WHERE A.Altitude <= ALL(SELECT Altitude FROM Airports);
 END \\
 
