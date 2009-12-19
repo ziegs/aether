@@ -29,7 +29,7 @@ CREATE PROCEDURE AllRoutes()
 BEGIN
 	SELECT Airline, AirlineID, Source, Dest, Codeshare, Stops, Equipment, TicketPrice FROM Routes;
 	SELECT Airports.ID, Latitude, Longitude, NumRunways FROM ((SELECT DISTINCT DestID AS ID FROM Routes) UNION DISTINCT (SELECT DISTINCT SourceID AS ID FROM Routes)) AS ids INNER JOIN Airports ON Airports.ID = ids.ID;
-	SELECT A1.Latitude AS srcLat, A1.Longitude AS srcLong, A2.Latitude AS destLat, A2.Longitude as destLong FROM Airports A1 INNER JOIN Routes R ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID;
+	SELECT DISTINCT A1.Latitude AS srcLat, A1.Longitude AS srcLong, A2.Latitude AS destLat, A2.Longitude as destLong FROM Airports A1 INNER JOIN Routes R ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID;
 END\\
 
 # List in result area, place airport markers, draw route arcs
@@ -39,10 +39,10 @@ BEGIN
 	SET @s = CONCAT('SELECT A.Name, A.IATA, A.ICAO, A.Callsign, A.Country FROM Routes R, Airlines A WHERE R.SourceID IN (SELECT ID FROM Airports WHERE City LIKE "%', city1, '%") AND R.DestID IN (SELECT ID FROM Airports WHERE City LIKE "%', city2, '%") AND A.ID = R.AirlineID;');
 	PREPARE stmt FROM @s;
 	EXECUTE stmt;
-	SET @s = CONCAT('SELECT ID, Latitude, Longitude, NumRunways FROM Airports WHERE City LIKE "%', city1, '%" OR City LIKE "%', city2, '%";');
+	SET @s = CONCAT('SELECT DISTINCT ID, Latitude, Longitude, NumRunways FROM Airports WHERE City LIKE "%', city1, '%" OR City LIKE "%', city2, '%";');
 	PREPARE stmt FROM @s;
 	EXECUTE stmt;
-	SET @s = CONCAT('SELECT A1.Latitude AS srcLat, A1.Longitude AS srcLong, A2.Latitude AS destLat, A2.Longitude as destLong FROM Airports A1, Airports A2, Routes R WHERE A1.City LIKE "%', city1, '%" AND A2.City LIKE "%', city2, '%" AND R.SourceID = A1.ID AND R.DestID = A2.ID;');
+	SET @s = CONCAT('SELECT DISTINCT A1.Latitude AS srcLat, A1.Longitude AS srcLong, A2.Latitude AS destLat, A2.Longitude as destLong FROM Airports A1, Airports A2, Routes R WHERE A1.City LIKE "%', city1, '%" AND A2.City LIKE "%', city2, '%" AND R.SourceID = A1.ID AND R.DestID = A2.ID;');
 	PREPARE stmt FROM @s;
 	EXECUTE stmt;
 END\\
@@ -61,7 +61,7 @@ CREATE PROCEDURE RoutesAirlineServices(IN Airline INT)
 BEGIN
 	SELECT Airline, AirlineID, Source, Dest, Codeshare, Stops, Equipment, TicketPrice FROM Routes WHERE AirlineID = Airline;
 	SELECT ID, Latitude, Longitude, NumRunways FROM ((SELECT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline) UNION DISTINCT (SELECT SourceID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
-	SELECT A1.Latitude as srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2, Routes R WHERE R.SourceID = A1.ID AND R.DestID = A2.ID AND R.AirlineID = Airline;
+	SELECT DISTINCT A1.Latitude as srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2, Routes R WHERE R.SourceID = A1.ID AND R.DestID = A2.ID AND R.AirlineID = Airline;
 END \\
 
 DROP PROCEDURE IF EXISTS ShortestFlight\\
@@ -90,7 +90,7 @@ END \\
 DROP PROCEDURE IF EXISTS AirlinesLeavingAirport\\
 CREATE PROCEDURE AirlinesLeavingAirport(IN Airport INT)
 BEGIN
-	SELECT A.Name, A.IATA, A.ICAO, A.Callsign, A.Country FROM Routes R INNER JOIN Airlines A ON R.AirlineID = A.ID WHERE R.SourceID = Airport;
+	SELECT DISTINCT A.Name, A.IATA, A.ICAO, A.Callsign, A.Country FROM Routes R INNER JOIN Airlines A ON R.AirlineID = A.ID WHERE R.SourceID = Airport;
 	SELECT DISTINCT ID, Latitude, Longitude, NumRunways FROM ((SELECT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Routes.SourceID = Airport) UNION DISTINCT (SELECT SourceID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Routes.SourceID = Airport)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
 	SELECT DISTINCT A1.Latitude as srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2, Routes R WHERE R.SourceID = A1.ID AND R.DestID = A2.ID AND R.SourceID = Airport;
 END \\
@@ -99,7 +99,7 @@ END \\
 DROP PROCEDURE IF EXISTS AirlinesEnteringAirport\\
 CREATE PROCEDURE AirlinesEnteringAirport(IN Airport INT)
 BEGIN
-	SELECT A.Name, A.IATA, A.ICAO, A.Callsign, A.Country FROM Routes R INNER JOIN Airlines A ON R.AirlineID = A.ID WHERE R.DestID = Airport;
+	SELECT DISTINCT A.Name, A.IATA, A.ICAO, A.Callsign, A.Country FROM Routes R INNER JOIN Airlines A ON R.AirlineID = A.ID WHERE R.DestID = Airport;
 	SELECT DISTINCT ID, Latitude, Longitude, NumRunways FROM ((SELECT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Routes.DestID = Airport) UNION DISTINCT (SELECT SourceID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Routes.DestID = Airport)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
 	SELECT DISTINCT A1.Latitude as srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2, Routes R WHERE R.SourceID = A1.ID AND R.DestID = A2.ID AND R.DestID = Airport;
 END \\
@@ -128,13 +128,15 @@ DROP PROCEDURE IF EXISTS AirportDistance\\
 CREATE PROCEDURE AirportDistance(IN airport1 INT, IN airport2 INT)
 BEGIN
 	SELECT A1.Name, A1.City, A1.Country, A1.IATA, A1.ICAO, A2.Name, A2.City, A2.Country, A2.IATA, A2.ICAO, AirportDistanceF(airport1, airport2) AS Distance FROM Airports A1, Airports A2 WHERE A1.ID = airport1 AND A2.ID = airport2;
+	SELECT ID, Latitude, Longitude, NumRunways FROM Airports A1 WHERE A1.ID = airport1 OR A1.ID = airport2;
+	SELECT A1.Latitude AS srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2 WHERE A1.ID = airport1 AND A2.ID = airport2;
 END\\
 
 # List answer in results table, place airport markers, draw route arc
 DROP PROCEDURE IF EXISTS AirportTimeDifference\\
 CREATE PROCEDURE AirportTimeDifference(IN Airport1 INT, IN Airport2 INT)
 BEGIN
-	SELECT A1.Name, A1.City, A1.Country, A1.IATA, A1.ICAO, A2.Name, A2.City, A2.Country, A2.IATA, A2.ICAO, A1.Timezone - A2.Timezone as TimeDifference FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2;
+	SELECT A1.Name, A1.City, A1.Country, A1.IATA, A1.ICAO, A2.Name, A2.City, A2.Country, A2.IATA, A2.ICAO, A2.Timezone - A1.Timezone as TimeDifference FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2;
 	SELECT DISTINCT ID, Latitude, Longitude, NumRunways FROM Airports WHERE ID = Airport1 OR ID = Airport2;
 	SELECT A1.Latitude AS srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2;
 END\\
@@ -173,7 +175,7 @@ END\\
 DROP PROCEDURE IF EXISTS CostBetweenAirports\\
 CREATE PROCEDURE CostBetweenAirports(IN Airport1 INT, IN Airport2 INT)
 BEGIN
-	SELECT Name, IATA, ICAO, Callsign, Country, TicketPrice FROM Routes WHERE SourceID = Airport1 AND DestID = Airport2;
+	SELECT Airline, AirlineID, Source, Dest, Codeshare, Stops, Equipment, TicketPrice FROM Routes WHERE SourceID = Airport1 AND DestID = Airport2;
 	SELECT DISTINCT ID, Latitude, Longitude, NumRunways FROM Airports WHERE ID = Airport1 OR ID = Airport2;
 	SELECT A1.Latitude AS srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2;
 END\\
