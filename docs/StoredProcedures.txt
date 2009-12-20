@@ -27,7 +27,7 @@ END//
 DROP PROCEDURE IF EXISTS AllRoutes//
 CREATE PROCEDURE AllRoutes()
 BEGIN
-	SELECT Airline, Source, Dest, Codeshare, Stops, Equipment, TicketPrice FROM Routes;
+	SELECT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Routes;
 	SELECT Airports.ID, Latitude, Longitude, NumRunways FROM ((SELECT DISTINCT DestID AS ID FROM Routes) UNION DISTINCT (SELECT DISTINCT SourceID AS ID FROM Routes)) AS ids INNER JOIN Airports ON Airports.ID = ids.ID;
 	SELECT DISTINCT A1.Latitude AS srcLat, A1.Longitude AS srcLong, A2.Latitude AS destLat, A2.Longitude as destLong FROM Airports A1 INNER JOIN Routes R ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID;
 END//
@@ -59,7 +59,7 @@ END //
 DROP PROCEDURE IF EXISTS RoutesAirlineServices//
 CREATE PROCEDURE RoutesAirlineServices(IN Airline INT)
 BEGIN
-	SELECT Airline, Source, Dest, Codeshare, Stops, Equipment, TicketPrice FROM Routes WHERE AirlineID = Airline;
+	SELECT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Routes WHERE AirlineID = Airline;
 	SELECT ID, Latitude, Longitude, NumRunways FROM ((SELECT DestID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline) UNION DISTINCT (SELECT SourceID AS City FROM Airlines INNER JOIN Routes ON Airlines.ID = Routes.AirlineID WHERE Airlines.ID = Airline)) AS Services INNER JOIN Airports A ON Services.City = A.ID;
 	SELECT DISTINCT A1.Latitude as srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2, Routes R WHERE R.SourceID = A1.ID AND R.DestID = A2.ID AND R.AirlineID = Airline;
 END //
@@ -68,9 +68,9 @@ DROP PROCEDURE IF EXISTS ShortestFlight//
 CREATE PROCEDURE ShortestFlight(IN srcAirport INT, IN destAirport INT)
 BEGIN
 	DECLARE size INT DEFAULT 0;
-	SELECT count(distinct AirlineID) FROM Routes WHERE SourceID = srcAirport AND DestID = destAirport AND Stops = 0 INTO size;
+	SELECT count(distinct AirlineID) FROM Routes WHERE SourceID = srcAirport AND DestID = destAirport INTO size;
 	IF size > 0 THEN
-		SELECT DISTINCT Airline, Source, Dest, Codeshare, Stops, Equipment, TicketPrice FROM Routes WHERE SourceID = srcAirport AND DestID = destAirport AND Stops = 0;
+		SELECT DISTINCT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Routes WHERE SourceID = srcAirport AND DestID = destAirport;
 	ELSE
 		SET @s = CONCAT("CALL dijkstraStops('", srcAirport, "', '", destAirport, "')");
 		PREPARE stmt FROM @s;
@@ -143,9 +143,9 @@ END//
 
 # Returns a heuristic ticket price as a float
 DROP FUNCTION IF EXISTS TicketPrice//
-CREATE FUNCTION TicketPrice(dist FLOAT, Stops INT, startRunways INT, endRunways INT) RETURNS FLOAT DETERMINISTIC
+CREATE FUNCTION TicketPrice(dist FLOAT, startRunways INT, endRunways INT) RETURNS FLOAT DETERMINISTIC
 BEGIN
-	RETURN ((dist*0.9) / LOG((stops+2)*100)) + 100 - 40*(stops) - endRunways*8 - startRunways*5;
+	RETURN ((dist*0.9) / 5.29831736654804) + 100 - endRunways*8 - startRunways*5;
 END//
 
 # Repopulates the estimated ticket price for all routes in the database
@@ -154,16 +154,16 @@ CREATE PROCEDURE PopulateTicketPrices()
 BEGIN
 	DECLARE done INT DEFAULT 0;
 	DECLARE dist FLOAT;
-	DECLARE SourceID, DestID, Stops, sRunways, eRunways INT;
+	DECLARE SourceID, DestID, sRunways, eRunways INT;
 	DECLARE rAirline VARCHAR(3);
-	DECLARE cur CURSOR FOR SELECT R.Airline, A1.ID, A2.ID, R.Stops, A1.numRunways, A2.numRunways FROM Routes R INNER JOIN Airports A1 ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID WHERE R.SourceID IS NOT NULL AND R.DestID IS NOT NULL;
+	DECLARE cur CURSOR FOR SELECT R.Airline, A1.ID, A2.ID, A1.numRunways, A2.numRunways FROM Routes R INNER JOIN Airports A1 ON R.SourceID = A1.ID INNER JOIN Airports A2 ON R.DestID = A2.ID WHERE R.SourceID IS NOT NULL AND R.DestID IS NOT NULL;
 	
 	OPEN cur;
 	REPEAT
-		FETCH cur INTO rAirline, SourceID, DestID, Stops, sRunways, eRunways;
+		FETCH cur INTO rAirline, SourceID, DestID, sRunways, eRunways;
 		IF NOT done THEN
 			SET dist = AirportDistanceF(SourceID, DestID);
-			SET @s = CONCAT("UPDATE Routes SET TicketPrice = '", TicketPrice(dist, Stops, sRunways, eRunways), "' WHERE SourceID = '", SourceID, "' AND DestID = '", DestID, "' AND Airline = '", rAirline, "' AND Stops = '", Stops, "';");
+			SET @s = CONCAT("UPDATE Routes SET TicketPrice = '", TicketPrice(dist, sRunways, eRunways), "' WHERE SourceID = '", SourceID, "' AND DestID = '", DestID, "' AND Airline = '", rAirline, "';");
 			PREPARE stmt FROM @s;
 			EXECUTE stmt;
 		END IF;
@@ -175,7 +175,7 @@ END//
 DROP PROCEDURE IF EXISTS CostBetweenAirports//
 CREATE PROCEDURE CostBetweenAirports(IN Airport1 INT, IN Airport2 INT)
 BEGIN
-	SELECT Airline, Source, Dest, Codeshare, Stops, Equipment, TicketPrice FROM Routes WHERE SourceID = Airport1 AND DestID = Airport2;
+	SELECT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Routes WHERE SourceID = Airport1 AND DestID = Airport2;
 	SELECT DISTINCT ID, Latitude, Longitude, NumRunways FROM Airports WHERE ID = Airport1 OR ID = Airport2;
 	SELECT A1.Latitude AS srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2;
 END//
@@ -237,14 +237,14 @@ BEGIN
                 Airports src JOIN Routes paths ON paths.sourceID = src.ID
                   JOIN Airports dest ON dest.ID = paths.destID
               SET dest.Cost = CASE
-                                WHEN dest.Cost IS NULL THEN src.Cost + paths.Stops + 1
-                                WHEN src.Cost + paths.Stops + 1 < dest.Cost THEN src.Cost + paths.Stops + 1
+                                WHEN dest.Cost IS NULL THEN src.Cost + 1
+                                WHEN src.Cost + 1 < dest.Cost THEN src.Cost + 1
                                 ELSE dest.Cost
                               END,
                   dest.PathID = Paths.PathID
               WHERE 
                 src.ID = vID
-                AND (dest.Cost IS NULL OR src.Cost + paths.Stops + 1 < dest.Cost)
+                AND (dest.Cost IS NULL OR src.Cost + 1 < dest.Cost)
                 AND dest.Calculated = 0;
        
               UPDATE Airports SET Calculated = 1 WHERE ID = vID;
@@ -277,8 +277,7 @@ BEGIN
 	Dest VARCHAR(4),
 	Codeshare CHAR(1),
 	Equipment VARCHAR(255),
-	TicketPrice FLOAT UNSIGNED,
-	Stops INT
+	TicketPrice FLOAT UNSIGNED
       );
       WHILE vFromID <> vToID DO
         BEGIN
@@ -373,8 +372,7 @@ BEGIN
 	Dest VARCHAR(4),
 	Codeshare CHAR(1),
 	Equipment VARCHAR(255),
-	TicketPrice FLOAT UNSIGNED,
-	Stops INT
+	TicketPrice FLOAT UNSIGNED
       );
       WHILE vFromID <> vToID DO
         BEGIN		
