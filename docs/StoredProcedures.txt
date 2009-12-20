@@ -329,6 +329,7 @@ BEGIN
           UPDATE Airports SET Cost = 0 WHERE ID = vFromID;
           WHILE vID IS NOT NULL DO
             BEGIN
+	      -- Adapt this query to support min ticket price on the multiple edges from source to dest
               UPDATE
                 Airports src JOIN Routes paths ON paths.sourceID = src.ID
                   JOIN Airports dest ON dest.ID = paths.destID
