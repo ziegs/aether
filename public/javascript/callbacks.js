@@ -124,10 +124,10 @@ function airportDistanceCallback_(dialog) {
   var callback = function() {
     var data1 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var data2 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p2').val()};
-    translationCallback1 = function() {
-      var id1 = data['ID'];
-      translationCallback2 = function() {
-        var id2 = data['ID'];
+    translationCallback1 = function(data1) {
+      var id1 = data1['ID'];
+      translationCallback2 = function(data2) {
+        var id2 = data2['ID'];
         makeRequestAndUpdate('AirportDistance', {'p1': id1, 'p2' : id2})
       };
       $.getJSON('/tr', data2, translationCallback2);
@@ -154,10 +154,10 @@ function timeChangeCallback_(dialog) {
   var callback = function() {
     var data1 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var data2 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p2').val()};
-    translationCallback1 = function() {
-      var id1 = data['ID'];
-      translationCallback2 = function() {
-        var id2 = data['ID'];
+    translationCallback1 = function(data1) {
+      var id1 = data1['ID'];
+      translationCallback2 = function(data2) {
+        var id2 = data2['ID'];
         makeRequestAndUpdate('AirportTimeChange', {'p1': id1, 'p2' : id2})
       };
       $.getJSON('/tr', data2, translationCallback2);
