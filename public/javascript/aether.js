@@ -62,16 +62,16 @@ var num_params = {
 var callbacks = {
   'AirlinesEnteringAirport': NULL_CALLBACK,
   'AirlinesLeavingAirport': NULL_CALLBACK,
-  'AirportAtMaxElevation': NULL_CALLBACK,
-  'AirportAtMinElevation': NULL_CALLBACK,
-  'AirportDistance': NULL_CALLBACK,
+  'AirportAtMaxElevation': maxElevationCallback_,
+  'AirportAtMinElevation': minElevationCallback_,
+  'AirportDistance': airportDistanceCallback_,
   'AirportTimeDifference': NULL_CALLBACK,
-  'AirportsAirlineServices': NULL_CALLBACK,
+  'AirportsAirlineServices': airlineServicesCallback_,
   'AllAirlines': allAirlinesCallback_,
   'AllAirports': allAirportsCallback_,
   'AllRoutes': allRoutesCallback_,
   'CostBetweenAirports': NULL_CALLBACK,
-  'DestinationsFromAirport': NULL_CALLBACK,
+  'DestinationsFromAirport': airportDestinationsCallback_,
   'RoutesAirlineServices': NULL_CALLBACK,
   'AllAirportsInCountry': allAirportsInCountryCallback_,
   'AirlinesBetweenCities': NULL_CALLBACK,
@@ -302,7 +302,7 @@ function updateMap_(points, routes, opt_clearFirst) {
     var pos = new GLatLng(point['Latitude'], point['Longitude']);
     var marker = new GMarker(pos);
     
-    mgr.addMarker(marker, $.max(9 - size, 3));
+    mgr.addMarker(marker, $.max(8 - size, 3));
     i++;
     return true;
   });

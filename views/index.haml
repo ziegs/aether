@@ -26,15 +26,15 @@
             %span{:class => 'ui-icon ui-icon-triangle-1-e'}
             %a{:href => "#"} Airports
           %div{:class => 'ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active'}
-            %a{:href => "#", :id => 'AllAirportsInCountry'} Airports by Country
+            %a{:href => "#", :id => 'AllAirportsInCountry'} Airports in Country
             %br/
-            %a{:href => "#", :id => 'Elevation'} Airports by Elevation
-            %br/
-            %a{:href => "#", :id => 'AirportsAirlineServices'} Airports by Airline
-            %br/
-            %a{:href => "#", :id => 'CostBetweenAirports'} Destinations from Airport (Direct Only)
+            %a{:href => "#", :id => 'DestinationsFromAirport'} Destinations from Airport
             %br/
             %a{:href => "#", :id => 'AirportDistance'} Distance Between Airports
+            %br/
+            %a{:href => "#", :id => 'AirportAtMaxElevation'} Highest Altitude Airport
+            %br/
+            %a{:href => "#", :id => 'AirportAtMinElevation'} Lowest Altitude Airport
             %br/
             %a{:href => "#", :id => 'AirportTimeDifferences'} Time Change Between Airports
             %br/
@@ -46,6 +46,8 @@
             %a{:href => "#", :id => 'AirlinesLeavingAirport'} Airlines by Airport (Departing)
             %br/
             %a{:href => "#", :id => 'AirlinesEnteringAirport'} Airlines by Airport (Arriving)
+            %br/
+            %a{:href => "#", :id => 'AirportsAirlineServices'} Airports Airline Services
             %br/
             %a{:href => "#", :id => 'AllAirlines'} All Airlines
           %h3{:class => 'ui-accordion-header ui-helper-reset ui-state-default ui-corner-all'}

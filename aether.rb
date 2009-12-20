@@ -157,6 +157,26 @@ get '/ir' do
   end
 end
 
+# Translate a text entry into an airline or airport ID
+get '/tr' do
+  content_type 'text/json'
+  table = DB.escape_string(params[:table])
+  col = DB.escape_string(params[:col])
+  text = DB.escape_string(params[:text])
+  begin
+    DB.query("SELECT ID FROM #{table} WHERE #{col} = \"#{text}\" LIMIT 1")
+    result = DB.use_result
+    ret = result.fetch_hash()
+    result.free
+    if ret == nil 
+      return {}.to_json
+    end
+    return ret.to_json
+  rescue Mysql::Error => e
+    return {}.to_json
+  end
+end
+
 # Route requests
 get '/rr' do
   content_type = 'text/json'
