@@ -296,6 +296,7 @@ function updateMap_(points, routes, opt_clearFirst) {
   
   var i = 0;
   var length = points.length;
+  var zoomFunc = length > 100 ? $.max : $.min;
   var largestAirport = null;
   var largestAirportSize = -500;
   $.log('markers');
@@ -304,7 +305,7 @@ function updateMap_(points, routes, opt_clearFirst) {
       mgr.refresh();
       markersDone = true;
       if (largestAirport) {
-        mapObj.setCenter(largestAirport, $.max(8 - size, 3));
+        mapObj.setCenter(largestAirport, zoomFunc(8 - size, 3));
       }
       $.log('Finished loading markers');
       return false;
@@ -317,7 +318,7 @@ function updateMap_(points, routes, opt_clearFirst) {
       largestAirport = pos;
       largestAirportSize = size;
     }
-    mgr.addMarker(marker, $.max(8 - size, 3));
+    mgr.addMarker(marker, zoomFunc(8 - size, 3));
     i++;
     return true;
   });
