@@ -249,6 +249,8 @@ function updateTable_(headers, records) {
   if (records.length > 0) {
     $.doTimeout('updateTable', 0, function() {
       if (i >= length) {
+        $('#data').append(rowCache);
+        rowCache = "";
         $('#data').tablesorter({widthFixed: true});
         $.log('Setting up paginator...');
         var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > select').val()};
