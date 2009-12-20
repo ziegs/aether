@@ -112,9 +112,28 @@ function unload() {
 };
 
 function setupNav_() {
+  var dlgOpts = {
+    bgiframe: false,
+    resizable: false,
+    modal: true,
+    overlay: {
+      backgroundColor: '#000',
+      opacity: 0.5
+    },
+    autoOpen: false
+  };
+  var dialog = $('#dialog');
+  dialog.dialog(dlgOpts);
   $('#navigation').accordion({clearStyle: true, autoHeight: true, active: 0});
-  $('#navigation > div > a').each(function(i, link) {
-    $(link).click(callbacks[link.id]);
+  $('#navigation > div > a').each(function(i, l) {
+    var link = $(this).one('click', function() {
+      callbacks[l.id](dialog);
+      link.click(function() {
+        callbacks[l.id](dialog);
+        return false;
+      });
+      return false;
+    });
   });
 };
 
@@ -304,77 +323,26 @@ function updateMap_(points, routes, opt_clearFirst) {
   //   });
 };
 
-function makeModalDialog(title, text, buttonObj) {
-  $("#dialog").text(text);
-  $("#dialog").dialog({
-    bgiframe: false,
-    resizable: false,
-    //height:300,
-    modal: true,
-    title: title,
-    overlay: {
-      backgroundColor: '#000',
-      opacity: 0.5
+function makeModalDialog(dialog, title, text, buttonObj) {
+  dialog.text(text);
+  dialog.dialog('option', 'title', title);
+  dialog.dialog('option', 'buttons', buttonObj);
+  dialog.dialog('open');
+};
+
+function makeRequestDialog(dialog, title, content, confirmCallback) {
+  dialog.html(content);
+  dialog.dialog('option', 'title', title);
+  dialog.dialog('option', 'buttons', {
+    Cancel: function() {
+      dialog.dialog('close');
     },
-    buttons: buttonObj
+    OK: function() {
+      confirmCallback();
+      dialog.dialog('close');
+    }
   });
-};
-
-// Query callbacks. These should probably be in a different file or come from the server. Oops.
-function allAirportsCallback_(e) {
-  var buttons = {
-    'Continue': function() {
-      makeRequestAndUpdate('AllAirports', {});
-      $(this).dialog('close');
-    },
-    Cancel: function() {
-      $(this).dialog('close');
-    }
-  };
-  makeModalDialog('Warning', MSG_LONG_QUERY, buttons);
-  return false;
-};
-
-function allAirportsInCountryCallback_(e) {
-  var buttons = {
-    Ok: function() {
-      makeRequestAndUpdate('AllAirports', {});
-      $(this).dialog('close');
-    },
-    Cancel: function() {
-      $(this).dialog('close');
-    }
-  };
-  makeRequestDialog('Warning', MSG_LONG_QUERY, buttons);
-  return false;
-};
-
-function allRoutesCallback_(e) {
-  var buttons = {
-    'Continue': function() {
-      makeRequestAndUpdate('AllRoutes', {});
-      $(this).dialog('close');
-    },
-    Cancel: function() {
-      $(this).dialog('close');
-    }
-  };
-  makeModalDialog('Warning', MSG_LONG_QUERY, buttons);
-  return false;
-};
-
-function allAirlinesCallback_(e) {
-  var buttons = {
-    'Continue': function() {
-      makeRequestAndUpdate('AllAirlines', {});
-      $(this).dialog('close');
-    },
-    Cancel: function() {
-      $(this).dialog('close');
-    }
-  };
-  makeModalDialog('Warning', MSG_LONG_QUERY, buttons);
-  return false;
+  dialog.dialog('open');
 };
 
 // REMOVE EVENTUALLY
