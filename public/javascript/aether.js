@@ -277,6 +277,8 @@ function updateTable_(headers, records) {
       }
       return true;
     });
+  } else {
+    tablesDone = true;
   }
 };
 
