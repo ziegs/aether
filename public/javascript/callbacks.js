@@ -64,7 +64,7 @@ function maxElevationCallback_(dialog) {
 }
 
 function minElevationCallback_(dialog) {
-  makeRequestAndUpdate('AirportAtMainElevation', {});
+  makeRequestAndUpdate('AirportAtMinElevation', {});
   return false;
 }
 
@@ -100,7 +100,7 @@ function airportDestinationsCallback_(dialog) {
     var id;
     var translationCallback = function(data) {
       id = data['ID'];
-      makeRequestAndUpdate('AirportsAirlineServices', {'p1': id})
+      makeRequestAndUpdate('DestinationsFromAirport', {'p1': id})
     };
     $.getJSON('/tr', data, translationCallback);
   };
@@ -158,14 +158,14 @@ function timeChangeCallback_(dialog) {
       var id1 = data1['ID'];
       translationCallback2 = function(data2) {
         var id2 = data2['ID'];
-        makeRequestAndUpdate('AirportTimeChange', {'p1': id1, 'p2' : id2})
+        makeRequestAndUpdate('AirportTimeDifference', {'p1': id1, 'p2' : id2})
       };
       $.getJSON('/tr', data2, translationCallback2);
     };    
     $.getJSON('/tr', data1, translationCallback1);
   };
   
-  makeRequestDialog(dialog, 'Time Change Between Airports', content, callback);
+  makeRequestDialog(dialog, 'Time Difference Between Airports', content, callback);
   $('#p1').focus().autocomplete('/autofill', {
                                 // cat is for table, type is for column
                                 extraParams: {cat: 'Airports', type: 'IATA'}
