@@ -219,14 +219,14 @@ BEGIN
   -- find IDs referenced by input params
   SET vFromID = (SELECT ID FROM Airports WHERE ID = fromAirportID);
   IF vFromID IS NULL THEN
-    SELECT CONCAT('From node name ', fromAirportID, ' not found.'); 
+    SELECT * FROM Airports WHERE ID = -1;
   ELSE
     BEGIN
       -- start at src node
       SET vID = vFromID;
       SET vToID = (SELECT ID FROM Airports WHERE ID = toAirportID);
       IF vToID IS NULL THEN
-        SELECT CONCAT('From node name ', toAirportID, ' not found.');
+        SELECT * FROM Airports WHERE ID = -1;
       ELSE
         BEGIN
           -- calculate path costs till all are finished
@@ -261,7 +261,7 @@ BEGIN
   END IF;
   IF EXISTS(SELECT 1 FROM Airports WHERE ID = vToID AND Cost IS NULL) THEN
     -- problem,  cannot proceed
-    SELECT CONCAT('Node ', vID, ' missed.');
+    SELECT * FROM Airports WHERE ID = -1;
   ELSE
     BEGIN
       -- write itinerary to map table
@@ -293,7 +293,7 @@ BEGIN
           SET vToID = (SELECT SourceID FROM Routes WHERE PathID = vPathID);
         END;
       END WHILE;
-      SELECT FromCityID, ToCityID, Cost, Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Map ORDER BY RowID DESC;
+      SELECT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Map ORDER BY RowID DESC;
       DROP TEMPORARY TABLE Map;
     END;
   END IF;
@@ -314,14 +314,14 @@ BEGIN
   -- find IDs referenced by input params
   SET vFromID = (SELECT ID FROM Airports WHERE ID = fromAirportID);
   IF vFromID IS NULL THEN
-    SELECT CONCAT('From node name ', fromAirportID, ' not found.'); 
+    SELECT * FROM Airports WHERE ID = -1; 
   ELSE
     BEGIN
       -- start at src node
       SET vID = vFromID;
       SET vToID = (SELECT ID FROM Airports WHERE ID = toAirportID);
       IF vToID IS NULL THEN
-        SELECT CONCAT('From node name ', toAirportID, ' not found.');
+        SELECT * FROM Airports WHERE ID = -1;
       ELSE
         BEGIN
           -- calculate path costs till all are finished
@@ -356,7 +356,7 @@ BEGIN
   END IF;
   IF EXISTS(SELECT 1 FROM Airports WHERE ID = vToID AND Cost IS NULL) THEN
     -- problem,  cannot proceed
-    SELECT CONCAT('Node ', vID, ' missed.');
+    SELECT * FROM Airports WHERE ID = -1;
   ELSE
     BEGIN
        -- write itinerary to map table
@@ -388,7 +388,7 @@ BEGIN
           SET vToID = (SELECT SourceID FROM Routes WHERE PathID = vPathID);
         END;
       END WHILE;
-      SELECT FromCityID, ToCityID, Cost, Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Map ORDER BY RowID DESC;
+      SELECT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Map ORDER BY RowID DESC;
       DROP TEMPORARY TABLE Map;
     END;
   END IF;
