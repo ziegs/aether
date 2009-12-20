@@ -197,8 +197,11 @@ function dataReceivedCallback_(data) {
     $('#loading').fadeIn('normal');
   }
   $('#pager').hide();
-  updateMap_(data.map_points, data.map_routes, true);
-  updateTable_(headers, data.records);
+  var points = !!(data.map_points) ? data.map_points : [];
+  var routes = !!(data.map_routes) ? data.map_routes : [];
+  var records = !!(data.records) ? data.records : [];
+  updateMap_(points, routes, true);
+  updateTable_(headers, records);
   $.doTimeout('checkCompleteness', 200, function() {
     if (tablesDone && markersDone) {
       $('#loading').fadeOut('normal');
@@ -293,11 +296,16 @@ function updateMap_(points, routes, opt_clearFirst) {
   
   var i = 0;
   var length = points.length;
+  var largestAirport = null;
+  var largestAirportSize = -500;
   $.log('markers');
   $.doTimeout('placeMarkers', 0, function() {
     if (i >= length) {
       mgr.refresh();
       markersDone = true;
+      if (largestAirport) {
+        mapObj.setCenter(largestAirport, $.max(8 - size, 3));
+      }
       $.log('Finished loading markers');
       return false;
     }
@@ -305,7 +313,10 @@ function updateMap_(points, routes, opt_clearFirst) {
     var size = point['NumRunways'];
     var pos = new GLatLng(point['Latitude'], point['Longitude']);
     var marker = new GMarker(pos);
-    
+    if (size > largestAirportSize) {
+      largestAirport = pos;
+      largestAirportSize = size;
+    }
     mgr.addMarker(marker, $.max(8 - size, 3));
     i++;
     return true;
@@ -314,19 +325,19 @@ function updateMap_(points, routes, opt_clearFirst) {
   var j = 0;
   var edgeLength = routes.length;
   var lineOptions = {geodesic: true};
-  // There are OMG SO MANY ROUTES
-  // $.doTimeout('placeLines', 0, function() {
-  //     if (i >= length) {
-  //       return false;
-  //     }
-  //     var route = routes[i];
-  //     var p1 = new GLatLng(route['srcLat'], route['srcLong']);
-  //     var p2 = new GLatLng(route['destLat'], route['destLong']);
-  //     var line = new GPolyline([p1, p2], '#ff0000', 1, 1, lineOptions);
-  //     mapObj.addOverlay(line);
-  //     i++;
-  //     return true;
-  //   });
+  //There are OMG SO MANY ROUTES
+  $.doTimeout('placeLines', 0, function() {
+      if (j >= edgeLength) {
+        return false;
+      }
+      var route = routes[j];
+      var p1 = new GLatLng(route['srcLat'], route['srcLong']);
+      var p2 = new GLatLng(route['destLat'], route['destLong']);
+      var line = new GPolyline([p1, p2], '#ff0000', 1, 1, lineOptions);
+      mapObj.addOverlay(line);
+      j++;
+      return true;
+    });
 };
 
 function makeModalDialog(dialog, title, text, buttonObj) {
