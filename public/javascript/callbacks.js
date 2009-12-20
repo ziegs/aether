@@ -76,7 +76,7 @@ function airlineServicesCallback_(dialog) {
   var callback = function() {
     var data = {'table': 'Airlines', 'col' : 'Name', 'text': $('#p1').val()};
     var id;
-    dataReceivedCallback_ = function() {
+    var dataReceivedCallback_ = function() {
       id = data['ID'];
     };
     $.getJSON('/tr', data, dataReceivedCallback_);
@@ -99,7 +99,7 @@ function airportDestinationsCallback_(dialog) {
   var callback = function() {
     var data = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var id;
-    dataReceivedCallback_ = function() {
+    var dataReceivedCallback_ = function(data) {
       id = data['ID'];
       $.log(id);
     };
@@ -128,10 +128,10 @@ function airportDistanceCallback_(dialog) {
     var data1 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var data2 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p2').val()};
     var id1, id2;
-    dataReceivedCallback1_ = function() {
+    var dataReceivedCallback1_ = function() {
       id1 = data['ID'];
     };
-    dataReceivedCallback2_ = function() {
+    var dataReceivedCallback2_ = function() {
       id2 = data['ID'];
     };
     $.getJSON('/tr', data1, dataReceivedCallback1_);
