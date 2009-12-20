@@ -76,10 +76,10 @@ function airlineServicesCallback_(dialog) {
   var callback = function() {
     var data = {'table': 'Airlines', 'col' : 'Name', 'text': $('#p1').val()};
     var id;
-    dataReceivedCallback_ = function() {
+    dataReceivedCallback = function() {
       id = data['ID'];
     };
-    $.getJSON('/tr', data, dataReceivedCallback_);
+    $.getJSON('/tr', data, dataReceivedCallback);
     makeRequestAndUpdate('AirportsAirlineServices', {'p1': id})
   };
   makeRequestDialog(dialog, 'Airports Airline Services', content, callback);
@@ -99,11 +99,11 @@ function airportDestinationsCallback_(dialog) {
   var callback = function() {
     var data = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var id;
-    dataReceivedCallback_ = function() {
+    dataReceivedCallback = function() {
       id = data['ID'];
       $.log(id);
     };
-    $.getJSON('/tr', data, dataReceivedCallback_);
+    $.getJSON('/tr', data, dataReceivedCallback);
     $.log(id);
     makeRequestAndUpdate('AirportsAirlineServices', {'p1': id})
   };
@@ -128,18 +128,49 @@ function airportDistanceCallback_(dialog) {
     var data1 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var data2 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p2').val()};
     var id1, id2;
-    dataReceivedCallback1_ = function() {
+    dataReceivedCallback1 = function() {
       id1 = data['ID'];
     };
-    dataReceivedCallback2_ = function() {
+    dataReceivedCallback2 = function() {
       id2 = data['ID'];
     };
-    $.getJSON('/tr', data1, dataReceivedCallback1_);
-    $.getJSON('/tr', data2, dataReceivedCallback2_);
+    $.getJSON('/tr', data1, dataReceivedCallback1);
+    $.getJSON('/tr', data2, dataReceivedCallback2);
     makeRequestAndUpdate('AirportDistance', {'p1': id1, 'p2' : id2})
   };
   
   makeRequestDialog(dialog, 'Distance Between Airports', content, callback);
+  $('#p1').focus().autocomplete('/autofill', {
+                                // cat is for table, type is for column
+                                extraParams: {cat: 'Airports', type: 'IATA'}
+                                });
+  $('#airport-form').submit(function() { callback(); dialog.dialog('close'); return false; });
+  return false;
+}
+
+function timeChangeCallback_(dialog) {
+  var content = '<form id="airport-form" class="ui-widget">' +
+  '<label for="airport1">Airport Code: </label>' +
+  '<input id="p1" name="airport1" /><br />' +
+  '<label for="airport2">Airport Code: </label>' +
+  '<input id="p2" name="airport2" /><br />' +
+  '</form>';
+  var callback = function() {
+    var data1 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
+    var data2 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p2').val()};
+    var id1, id2;
+    dataReceivedCallback1 = function() {
+      id1 = data['ID'];
+    };
+    dataReceivedCallback2 = function() {
+      id2 = data['ID'];
+    };
+    $.getJSON('/tr', data1, dataReceivedCallback1);
+    $.getJSON('/tr', data2, dataReceivedCallback2);
+    makeRequestAndUpdate('AirportTimeChange', {'p1': id1, 'p2' : id2})
+  };
+  
+  makeRequestDialog(dialog, 'Time Change Between Airports', content, callback);
   $('#p1').focus().autocomplete('/autofill', {
                                 // cat is for table, type is for column
                                 extraParams: {cat: 'Airports', type: 'IATA'}

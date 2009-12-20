@@ -65,7 +65,7 @@ var callbacks = {
   'AirportAtMaxElevation': maxElevationCallback_,
   'AirportAtMinElevation': minElevationCallback_,
   'AirportDistance': airportDistanceCallback_,
-  'AirportTimeDifference': NULL_CALLBACK,
+  'AirportTimeDifference': timeChangeCallback_,
   'AirportsAirlineServices': airlineServicesCallback_,
   'AllAirlines': allAirlinesCallback_,
   'AllAirports': allAirportsCallback_,
