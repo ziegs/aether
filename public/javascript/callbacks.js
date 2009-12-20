@@ -14,17 +14,19 @@ function allAirportsCallback_(dialog) {
 };
 
 function allAirportsInCountryCallback_(dialog) {
-  var content = '<form class="ui-widget">' +
+  var content = '<form id="country-form" class="ui-widget">' +
       '<label for="country">Country:</label>' +
       '<input id="p1" name="country" /><br />' +
       '</form>';
-  makeRequestDialog(dialog, 'Airports in Country', content, function() {
-    makeRequestAndUpdate('AllAirportsInCountry', {'p1': $('#p1').val()});
-  });
+  var callback = function() {
+        makeRequestAndUpdate('AllAirportsInCountry', {'p1': $('#p1').val()})
+  };
+  makeRequestDialog(dialog, 'Airports in Country', content, callback);
   $('#p1').focus().autocomplete('/autofill', {
     // cat is for table, type is for column
     extraParams: {cat: 'Airports', type: 'Country'}
   });
+  $('#country-form').submit(function() { callback(); dialog.dialog('close'); return false; });
   return false;
 };
 

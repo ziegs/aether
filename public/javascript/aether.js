@@ -246,36 +246,38 @@ function updateTable_(headers, records) {
   var i = 0;
   var length = records.length;
   var rowCache = "";
-  $.doTimeout('updateTable', 0, function() {
-    if (i >= length) {
-      $('#data').tablesorter({widthFixed: true});
-      $.log('Setting up paginator...');
-      var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > select').val()};
-      $('#data').tablesorterPager(pagerOpts);
-      $.log('...pagination complete');
-      $('#pager').fadeIn();
-      $('#data').fadeIn();
-      tablesDone = true;
-      return false;
-    };
-    var trClass = i % 2 == 0 ? 'even' : 'odd';
-    rowCache += '<tr class="' + trClass + '">';
-    $.each(headers, function(x, name) {
-      rowCache += '<td>' + records[i][name] + '</td>';
+  if (records.length > 0) {
+    $.doTimeout('updateTable', 0, function() {
+      if (i >= length) {
+        $('#data').tablesorter({widthFixed: true});
+        $.log('Setting up paginator...');
+        var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > select').val()};
+        $('#data').tablesorterPager(pagerOpts);
+        $.log('...pagination complete');
+        $('#pager').fadeIn();
+        $('#data').fadeIn();
+        tablesDone = true;
+        return false;
+      };
+      var trClass = i % 2 == 0 ? 'even' : 'odd';
+      rowCache += '<tr class="' + trClass + '">';
+      $.each(headers, function(x, name) {
+        rowCache += '<td>' + records[i][name] + '</td>';
+      });
+      rowCache += '</tr>';
+      i++;
+      $('#progress').progressbar('option', 'value', (i/length) * 100);
+      if (i % 25 == 0) {
+        // Flush the rowcache and write some rows to the DOM
+        $('#data').append(rowCache);
+        rowCache = "";
+      }
+      if (i % 500 == 0) {
+        $.log('Finished ' + i + ' records...');
+      }
+      return true;
     });
-    rowCache += '</tr>';
-    i++;
-    $('#progress').progressbar('option', 'value', (i/length) * 100);
-    if (i % 25 == 0) {
-      // Flush the rowcache and write some rows to the DOM
-      $('#data').append(rowCache);
-      rowCache = "";
-    }
-    if (i % 500 == 0) {
-      $.log('Finished ' + i + ' records...');
-    }
-    return true;
-  });
+  }
 };
 
 function updateMap_(points, routes, opt_clearFirst) {
