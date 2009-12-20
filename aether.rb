@@ -184,19 +184,17 @@ get '/autofill' do
   table = DB.escape_string(params[:cat])
   cat = DB.escape_string(params[:type])
   text = DB.escape_string(params[:q])
+  # The jquery autofill code doesn't act sanely.
+  retStr = "";
   begin
     DB.query("SELECT DISTINCT #{cat} FROM #{table} WHERE #{cat} LIKE \"#{text}%\" LIMIT 5")
     result = DB.use_result
-    rh = Array.new
     while row = result.fetch_hash do
-      rh.push(row)
+      retStr += row[cat] + "\n"
     end
     result.free
-    if rh.empty?
-      return {}.to_json
-    end
-    return rh.to_json
+    return retStr
   rescue Mysql::Error => e
-    return {}.to_json
+    return ""
   end
 end

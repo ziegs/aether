@@ -21,6 +21,10 @@ function allAirportsInCountryCallback_(dialog) {
   makeRequestDialog(dialog, 'Airports in Country', content, function() {
     makeRequestAndUpdate('AllAirportsInCountry', {'p1': $('#p1').val()});
   });
+  $('#p1').focus().autocomplete('/autofill', {
+    // cat is for table, type is for column
+    extraParams: {cat: 'Airports', type: 'Country'}
+  });
   return false;
 };
 
