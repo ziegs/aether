@@ -86,7 +86,6 @@ get '/ar' do
     3 => 'map_points',
     4 => 'map_routes'
   }
-
   query = queries[params[:id]]  
   param_length = num_params[query]
   if query == nil
@@ -94,7 +93,10 @@ get '/ar' do
   end
   
   sql_params = Array.new
-  1.upto(param_length) { |i| sql_params.push(DB.escape_string(params[("p#{i}").to_sym])) }
+  1.upto(param_length) { |i| 
+    parm = DB.escape_string(params[("p#{i}").to_sym])
+    sql_params.push("\"" + parm + "\"")
+  }
   
   # Call query, return all result tables in JSON form
   # Return headers:{header1 ... headern} records:{SELECT *} map_points: {aiport_id, lat, long} map_routes:{lat, long, lat, long}
@@ -103,7 +105,6 @@ get '/ar' do
     query = "CALL " + query + "("
     query += sql_params.join ', '
     query += ")"
-    print query
     
     table_num = 1;
     DB.query(query)

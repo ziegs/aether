@@ -14,11 +14,13 @@ function allAirportsCallback_(dialog) {
 };
 
 function allAirportsInCountryCallback_(dialog) {
-  var content = '<form>' +
-      '<label class="ui-widget" for="country">Country:</label>' +
-      '<input class="ui-widget" name="value" /><br />' +
+  var content = '<form class="ui-widget">' +
+      '<label for="country">Country:</label>' +
+      '<input id="p1" name="country" /><br />' +
       '</form>';
-  makeRequestDialog(dialog, 'Airports in Country', content, NULL_CALLBACK);
+  makeRequestDialog(dialog, 'Airports in Country', content, function() {
+    makeRequestAndUpdate('AllAirportsInCountry', {'p1': $('#p1')});
+  });
   return false;
 };
 
