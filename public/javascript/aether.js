@@ -12,7 +12,7 @@ var tablesDone = false;
 
 var NULL_CALLBACK = function() { $.log('Nothing to see here...'); };
 
-var MSG_LONG_QUERY = 'This query can take more than a minute to run and returns ' +
+var MSG_LONG_QUERY = 'This query may take more than a minute to run and may return ' +
     'a large amount of data. If you wish to continue, press continue. Otherwise, ' +
     'please click cancel.';
 
@@ -60,8 +60,8 @@ var num_params = {
 };
 
 var callbacks = {
-  'AirlinesEnteringAirport': NULL_CALLBACK,
-  'AirlinesLeavingAirport': NULL_CALLBACK,
+  'AirlinesEnteringAirport': enteringAirlinesCallback_,
+  'AirlinesLeavingAirport': exitingAirlinesCallback_,
   'AirportAtMaxElevation': maxElevationCallback_,
   'AirportAtMinElevation': minElevationCallback_,
   'AirportDistance': airportDistanceCallback_,
@@ -70,13 +70,13 @@ var callbacks = {
   'AllAirlines': allAirlinesCallback_,
   'AllAirports': allAirportsCallback_,
   'AllRoutes': allRoutesCallback_,
-  'CostBetweenAirports': NULL_CALLBACK,
+  'CostBetweenAirports': routeCostCallback_,
   'DestinationsFromAirport': airportDestinationsCallback_,
-  'RoutesAirlineServices': NULL_CALLBACK,
+  'RoutesAirlineServices': airlineRoutesCallback_,
   'AllAirportsInCountry': allAirportsInCountryCallback_,
-  'AirlinesBetweenCities': NULL_CALLBACK,
-  'ShortestFlight': NULL_CALLBACK,
-  'CheapestFlight': NULL_CALLBACK,
+  'AirlinesBetweenCities': airlinesBetweenCitiesCallback_,
+  'ShortestFlight': shortestFlightCallback_,
+  'CheapestFlight': cheapestFlightCallback_,
 };
 
 jQuery.extend({
