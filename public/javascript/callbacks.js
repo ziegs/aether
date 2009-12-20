@@ -19,7 +19,7 @@ function allAirportsInCountryCallback_(dialog) {
       '<input id="p1" name="country" /><br />' +
       '</form>';
   makeRequestDialog(dialog, 'Airports in Country', content, function() {
-    makeRequestAndUpdate('AllAirportsInCountry', {'p1': $('#p1')});
+    makeRequestAndUpdate('AllAirportsInCountry', {'p1': $('#p1').val()});
   });
   return false;
 };
