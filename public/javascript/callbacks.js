@@ -75,12 +75,11 @@ function airlineServicesCallback_(dialog) {
   '</form>';
   var callback = function() {
     var data = {'table': 'Airlines', 'col' : 'Name', 'text': $('#p1').val()};
-    var id;
-    dataReceivedCallback = function() {
-      id = data['ID'];
+    var translationCallback = function(data) {
+      var id = data['ID'];
+      makeRequestAndUpdate('AirportsAirlineServices', {'p1': id})
     };
-    $.getJSON('/tr', data, dataReceivedCallback);
-    makeRequestAndUpdate('AirportsAirlineServices', {'p1': id})
+    $.getJSON('/tr', data, translationCallback);
   };
   makeRequestDialog(dialog, 'Airports Airline Services', content, callback);
   $('#p1').focus().autocomplete('/autofill', {
@@ -99,13 +98,11 @@ function airportDestinationsCallback_(dialog) {
   var callback = function() {
     var data = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var id;
-    dataReceivedCallback = function() {
+    var translationCallback = function(data) {
       id = data['ID'];
-      $.log(id);
+      makeRequestAndUpdate('AirportsAirlineServices', {'p1': id})
     };
-    $.getJSON('/tr', data, dataReceivedCallback);
-    $.log(id);
-    makeRequestAndUpdate('AirportsAirlineServices', {'p1': id})
+    $.getJSON('/tr', data, translationCallback);
   };
   
   makeRequestDialog(dialog, 'Destinations From Airport', content, callback);
@@ -127,16 +124,15 @@ function airportDistanceCallback_(dialog) {
   var callback = function() {
     var data1 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var data2 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p2').val()};
-    var id1, id2;
-    dataReceivedCallback1 = function() {
-      id1 = data['ID'];
-    };
-    dataReceivedCallback2 = function() {
-      id2 = data['ID'];
-    };
-    $.getJSON('/tr', data1, dataReceivedCallback1);
-    $.getJSON('/tr', data2, dataReceivedCallback2);
-    makeRequestAndUpdate('AirportDistance', {'p1': id1, 'p2' : id2})
+    translationCallback1 = function() {
+      var id1 = data['ID'];
+      translationCallback2 = function() {
+        var id2 = data['ID'];
+        makeRequestAndUpdate('AirportDistance', {'p1': id1, 'p2' : id2})
+      };
+      $.getJSON('/tr', data2, translationCallback2);
+    };    
+    $.getJSON('/tr', data1, translationCallback1);
   };
   
   makeRequestDialog(dialog, 'Distance Between Airports', content, callback);
@@ -158,16 +154,15 @@ function timeChangeCallback_(dialog) {
   var callback = function() {
     var data1 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p1').val()};
     var data2 = {'table': 'Airports', 'col' : 'IATA', 'text': $('#p2').val()};
-    var id1, id2;
-    dataReceivedCallback1 = function() {
-      id1 = data['ID'];
-    };
-    dataReceivedCallback2 = function() {
-      id2 = data['ID'];
-    };
-    $.getJSON('/tr', data1, dataReceivedCallback1);
-    $.getJSON('/tr', data2, dataReceivedCallback2);
-    makeRequestAndUpdate('AirportTimeChange', {'p1': id1, 'p2' : id2})
+    translationCallback1 = function() {
+      var id1 = data['ID'];
+      translationCallback2 = function() {
+        var id2 = data['ID'];
+        makeRequestAndUpdate('AirportTimeChange', {'p1': id1, 'p2' : id2})
+      };
+      $.getJSON('/tr', data2, translationCallback2);
+    };    
+    $.getJSON('/tr', data1, translationCallback1);
   };
   
   makeRequestDialog(dialog, 'Time Change Between Airports', content, callback);
