@@ -89,7 +89,11 @@ var callbacks = {
 
 jQuery.extend({
   min: function(a, b) { return a < b ? a : b; },
-  max: function(a, b) { return a > b ? a : b; }
+  max: function(a, b) { return a > b ? a : b; },
+});
+
+jQuery.extend({
+  clamp: function(a, b, c) { return $.max(b, $.min(c, a)); }
 });
 
 /**
@@ -328,6 +332,7 @@ function updateMap_(points, routes, opt_clearFirst) {
   var i = 0;
   var length = points.length;
   var zoomFunc = length > 100 ? $.max : $.min;
+  var minZoom = length > 100 ? 3 : 0;
   var largestAirport = null;
   var largestAirportSize = -500;
   $.log('markers');
@@ -336,7 +341,7 @@ function updateMap_(points, routes, opt_clearFirst) {
       mgr.refresh();
       markersDone = true;
       if (largestAirport) {
-        mapObj.setCenter(largestAirport, zoomFunc(8 - largestAirportSize, 3));
+        mapObj.setCenter(largestAirport, $.clamp(zoomFunc(8 - largestAirportSize, minZoom), minZoom, 10));
       }
       $.log('Finished loading markers');
       return false;
@@ -344,7 +349,7 @@ function updateMap_(points, routes, opt_clearFirst) {
               
     var point = points[i];
     var size = point['NumRunways'];
-    var zoom = zoomFunc(8 - size, 3)
+    var zoom = zoomFunc(8 - size, minZoom);
     var pos = new GLatLng(point['Latitude'], point['Longitude']);
     var marker = new AetherMarker(pos, {id: point['ID'], icon: airportIcon});
     addClickHandler_(marker);
