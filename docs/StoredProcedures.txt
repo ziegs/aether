@@ -208,12 +208,13 @@ END//
 DROP PROCEDURE IF EXISTS dijkstraStops //
 CREATE PROCEDURE dijkstraStops(IN fromAirportID INT, IN toAirportID INT)
 BEGIN
-  DECLARE vFromID, vToID, vID, vCost, vPathID INT;
+  DECLARE vFromID, vToID, vID, vCost, vPathID, vSrcRunways, vDestRunways INT;
   DECLARE vFromCity, vToCity, vEquipment VARCHAR(255);
   DECLARE vAirline VARCHAR(3);
   DECLARE vSource, vDest VARCHAR(4);
   DECLARE vCodeshare CHAR(1);
   DECLARE vTicketPrice FLOAT UNSIGNED;
+  DECLARE vSrcLat, vSrcLong, vDestLat, vDestLong DECIMAL(12,9);
   -- null out path info in the Airports table
   UPDATE Airports SET PathID = NULL, Cost = NULL, Calculated = 0;
   -- find IDs referenced by input params
@@ -279,22 +280,40 @@ BEGIN
 	Equipment VARCHAR(255),
 	TicketPrice FLOAT UNSIGNED
       );
+      CREATE TEMPORARY TABLE routeAirports (
+	ID INT(11),
+	Latitude DECIMAL(12,9),
+	Longitude DECIMAL(12,9),
+	NumRunways INT UNSIGNED
+      ); 
+      CREATE TEMPORARY TABLE routeLegs (
+      	srcLat DECIMAL(12,9),
+	srcLong DECIMAL(12,9),
+	destLat DECIMAL(12,9),
+	destLong DECIMAL(12,9)
+      );
       WHILE vFromID <> vToID DO
         BEGIN
           SELECT 
-            src.ID, dest.ID, dest.Cost, dest.PathID, paths.Airline, paths.Source, paths.Dest, paths.Codeshare, paths.Equipment, paths.TicketPrice
-            INTO vFromCity, vToCity, vCost, vPathID, vAirline, vSource, vDest, vCodeshare, vEquipment, vTicketPrice
+            src.ID, dest.ID, dest.Cost, dest.PathID, paths.Airline, paths.Source, paths.Dest, paths.Codeshare, paths.Equipment, paths.TicketPrice, src.Latitude, src.Longitude, src.numRunways, dest.Latitude, dest.Longitude, dest.numRunways
+            INTO vFromCity, vToCity, vCost, vPathID, vAirline, vSource, vDest, vCodeshare, vEquipment, vTicketPrice, vSrcLat, vSrcLong, vSrcRunways, vDestLat, vDestLong, vDestRunways
           FROM 
             Airports dest JOIN Routes paths ON Paths.PathID = dest.PathID
               JOIN Airports src ON src.ID = paths.sourceID
           WHERE dest.ID = vToID;
           INSERT INTO Map(FromCityID, ToCityID, Cost, Airline, Source, Dest, Codeshare, Equipment, TicketPrice) VALUES (vFromCity, vToCity, vCost, vAirline, vSource, vDest, vCodeshare, vEquipment, vTicketPrice);
-          
+	  INSERT INTO routeAirports(ID, Latitude, Longitude, NumRunways) VALUES (vFromCity, vSrcLat, vSrcLong, vSrcRunways);
+	  INSERT INTO routeAirports(ID, Latitude, Longitude, NumRunways) VALUES (vToCity, vDestLat, vDestLong, vDestRunways);
+	  INSERT INTO routeLegs(srcLat, srcLong, destLat, destLong) VALUES (vSrcLat, vSrcLong, vDestLat, vDestLong);
           SET vToID = (SELECT SourceID FROM Routes WHERE PathID = vPathID);
         END;
       END WHILE;
       SELECT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Map ORDER BY RowID DESC;
+      SELECT DISTINCT * FROM routeAirports;
+      SELECT DISTINCT * FROM routeLegs;
       DROP TEMPORARY TABLE Map;
+      DROP TEMPORARY TABLE routeAirports;
+      DROP TEMPORARY TABLE routeLegs;
     END;
   END IF;
 END //
@@ -303,12 +322,13 @@ END //
 DROP PROCEDURE IF EXISTS dijkstraPrice //
 CREATE PROCEDURE dijkstraPrice(IN fromAirportID INT, IN toAirportID INT)
 BEGIN
-  DECLARE vFromID, vToID, vID, vPathID INT;
+  DECLARE vFromID, vToID, vID, vPathID, vSrcRunways, vDestRunways INT;
   DECLARE vFromCity, vToCity, vEquipment VARCHAR(255);
   DECLARE vAirline VARCHAR(3);
   DECLARE vSource, vDest VARCHAR(4);
   DECLARE vCodeshare CHAR(1);
   DECLARE vTicketPrice, vCost FLOAT UNSIGNED;
+  DECLARE vSrcLat, vSrcLong, vDestLat, vDestLong DECIMAL(12,9);
   -- null out path info in the Airports table
   UPDATE Airports SET PathID = NULL, Cost = NULL, Calculated = 0;
   -- find IDs referenced by input params
@@ -374,22 +394,40 @@ BEGIN
 	Equipment VARCHAR(255),
 	TicketPrice FLOAT UNSIGNED
       );
+      CREATE TEMPORARY TABLE routeAirports (
+	ID INT(11),
+	Latitude DECIMAL(12,9),
+	Longitude DECIMAL(12,9),
+	NumRunways INT UNSIGNED
+      ); 
+      CREATE TEMPORARY TABLE routeLegs (
+      	srcLat DECIMAL(12,9),
+	srcLong DECIMAL(12,9),
+	destLat DECIMAL(12,9),
+	destLong DECIMAL(12,9)
+      );
       WHILE vFromID <> vToID DO
-        BEGIN		
+        BEGIN
           SELECT 
-            src.ID, dest.ID, dest.Cost, dest.PathID, paths.Airline, paths.Source, paths.Dest, paths.Codeshare, paths.Equipment, paths.TicketPrice
-            INTO vFromCity, vToCity, vCost, vPathID, vAirline, vSource, vDest, vCodeshare, vEquipment, vTicketPrice
+            src.ID, dest.ID, dest.Cost, dest.PathID, paths.Airline, paths.Source, paths.Dest, paths.Codeshare, paths.Equipment, paths.TicketPrice, src.Latitude, src.Longitude, src.numRunways, dest.Latitude, dest.Longitude, dest.numRunways
+            INTO vFromCity, vToCity, vCost, vPathID, vAirline, vSource, vDest, vCodeshare, vEquipment, vTicketPrice, vSrcLat, vSrcLong, vSrcRunways, vDestLat, vDestLong, vDestRunways
           FROM 
             Airports dest JOIN Routes paths ON Paths.PathID = dest.PathID
               JOIN Airports src ON src.ID = paths.sourceID
-          WHERE dest.ID = vToID;          
+          WHERE dest.ID = vToID;
           INSERT INTO Map(FromCityID, ToCityID, Cost, Airline, Source, Dest, Codeshare, Equipment, TicketPrice) VALUES (vFromCity, vToCity, vCost, vAirline, vSource, vDest, vCodeshare, vEquipment, vTicketPrice);
-          
+	  INSERT INTO routeAirports(ID, Latitude, Longitude, NumRunways) VALUES (vFromCity, vSrcLat, vSrcLong, vSrcRunways);
+	  INSERT INTO routeAirports(ID, Latitude, Longitude, NumRunways) VALUES (vToCity, vDestLat, vDestLong, vDestRunways);
+	  INSERT INTO routeLegs(srcLat, srcLong, destLat, destLong) VALUES (vSrcLat, vSrcLong, vDestLat, vDestLong);
           SET vToID = (SELECT SourceID FROM Routes WHERE PathID = vPathID);
         END;
       END WHILE;
       SELECT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Map ORDER BY RowID DESC;
+      SELECT DISTINCT * FROM routeAirports;
+      SELECT DISTINCT * FROM routeLegs;
       DROP TEMPORARY TABLE Map;
+      DROP TEMPORARY TABLE routeAirports;
+      DROP TEMPORARY TABLE routeLegs;
     END;
   END IF;
 END //
