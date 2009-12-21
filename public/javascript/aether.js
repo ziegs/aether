@@ -341,7 +341,6 @@ function updateMap_(points, routes, opt_clearFirst) {
   var zoomFunc = length > 150 ? $.max : $.min;
   var centroidLat = 0;
   var centroidLng = 0;
-  var validCentroid = false;
   var bounds = new GLatLngBounds();
   $.log('markers');
   $.doTimeout('placeMarkers', 0, function() {
