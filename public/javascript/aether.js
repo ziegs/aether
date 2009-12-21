@@ -178,7 +178,7 @@ function setupHandlers_() {
       id = id.split('-')[1];
       var pos = allMarkers[id];
       if (pos) {
-        mapObj.setCenter(pos[0]);
+        mapObj.panTo(pos[0]);
         mapObj.setZoom(pos[1]);
         GEvent.trigger(
             markerManager.getMarker(pos[0].lat(), pos[0].lng(), pos[1]),
@@ -282,7 +282,7 @@ function updateTable_(headers, records) {
         rowCache = "";
         $('#data').tablesorter({widthFixed: true});
         $.log('Setting up paginator...');
-        var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > select').val()};
+        var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > selected').val()};
         $('#data').tablesorterPager(pagerOpts);
         $.log('...pagination complete');
         $('#pager').fadeIn();
