@@ -3,13 +3,15 @@
 +blueprint-typography("body")
 
 body
+  #header
+    +column(24)
+    :text-align center
+    :width 100%
   +blueprint-typography(true)
   .container
     +container
     :width 99%
-#header
-  +column(24)
-  :text-align center
+    :clear both
 #footer
   +column(24)
   :text-align center
