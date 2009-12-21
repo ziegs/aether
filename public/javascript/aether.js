@@ -344,7 +344,7 @@ function updateMap_(points, routes, opt_clearFirst) {
       mgr.refresh();
       markersDone = true;
       var center = new GLatLng(centroidLat/length, centroidLng/length);
-      var avgZoom = mapObj.getBoundsZoomLevel(bounds);
+      var avgZoom = $.clamp(mapObj.getBoundsZoomLevel(bounds), 3, 10);
       $.log($.validator.format('Centroid: ({0}, {1}), Zoom: {2}', center.lat(),
           center.lng(), avgZoom));
       mapObj.setCenter(center, avgZoom);
