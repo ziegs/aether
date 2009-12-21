@@ -5,6 +5,7 @@
 
 function AetherMarker(latlng, options) {
   this.latlng = latlng;
+  options = options || {};
   this.id = options.id || '9999';
   GMarker.apply(this, arguments);
 };
