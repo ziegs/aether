@@ -71,6 +71,8 @@ BEGIN
 	SELECT count(distinct AirlineID) FROM Routes WHERE SourceID = srcAirport AND DestID = destAirport INTO size;
 	IF size > 0 THEN
 		SELECT DISTINCT Airline, Source, Dest, Codeshare, Equipment, TicketPrice FROM Routes WHERE SourceID = srcAirport AND DestID = destAirport;
+		SELECT ID, Latitude, Longitude, NumRunways FROM Airports A1 WHERE A1.ID = srcAirport OR A1.ID = destAirport;
+		SELECT DISTINCT A1.Latitude as srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2 WHERE A1.ID = srcAirport AND A2.ID = destAirport;
 	ELSE
 		SET @s = CONCAT("CALL dijkstraStops('", srcAirport, "', '", destAirport, "')");
 		PREPARE stmt FROM @s;

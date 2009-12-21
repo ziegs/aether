@@ -17,6 +17,10 @@ var MSG_LONG_QUERY = 'This query may take more than a minute to run and may retu
     'a large amount of data. If you wish to continue, press continue. Otherwise, ' +
     'please click cancel.';
 
+var MSG_DIJKSTRA_QUERY = 'This query uses Dijkstra\'s algorithm on a huge data set. ' +
+    'It may take several minutes to return a result. If you wish to continue, ' +
+    'press continue. Otherwise, please click cancel.';
+
 DEBUG = /localhost|192\.168\.\d+\.\d+/.test(window.location.hostname);
 
 /** If you update the queries object, make sure you update the hash in aether.rb! */
