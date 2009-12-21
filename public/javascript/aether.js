@@ -6,6 +6,7 @@
 
 var mapObj;
 var markerManager;
+var allMarkers;
 
 var markersDone = false;
 var tablesDone = false;
@@ -109,6 +110,7 @@ function load() {
   // Set up jQuery's AJAX options
   mapObj = map;
   markerManager = mgr;
+  allMarkers = {};
 };
 
 function unload() {
@@ -165,6 +167,18 @@ function setupHandlers_() {
           $("#loading").fadeIn("normal"); 
       }).bind("sortEnd",function() { 
           $("#loading").fadeOut("normal"); 
+  });
+  
+  $('#data tr').live('click', function(e) {
+    var id = $(this).attr('id');
+    if (!!id) {
+      id = id.split('-')[1];
+      var pos = allMarkers[id];
+      if (pos) {
+        mapObj.setCenter(pos[0]);
+        mapObj.setZoom(pos[1]);
+      }
+    }
   });
 };
 
@@ -242,7 +256,6 @@ function updateTable_(headers, records) {
   var tbl = $('<table id="data" class="tablesorter"></table>');
   if (headers.length > 0) {
     var header = '<thead><tr>';
-    header += '<th class="id">id</th>'
     $.each(headers, function(i, name) {
       header += '<th class="header">' + name + '</th>';
     });
@@ -272,12 +285,11 @@ function updateTable_(headers, records) {
         return false;
       };
       var trClass = i % 2 == 0 ? 'even' : 'odd';
-      rowCache += '<tr class="' + trClass + '">';
+      var trId = '';
       if (records[i]['ID']) {
-        rowCache += '<td class="id">' + records[i]['ID'] + '</td>';
-      } else {
-        rowCache += '<td class="id"></td>';
+        trId = 'id="id-' + records[i]['ID'] + '"';
       }
+      rowCache += '<tr class="' + trClass + '" ' + trId + '>';
       $.each(headers, function(x, name) {
         rowCache += '<td>' + records[i][name] + '</td>';
       });
@@ -304,6 +316,7 @@ function updateMap_(points, routes, opt_clearFirst) {
   if (!!opt_clearFirst) {
     mgr.clearMarkers();
     mapObj.clearOverlays();
+    allMarkers = {};
   }
   
   var i = 0;
@@ -317,20 +330,22 @@ function updateMap_(points, routes, opt_clearFirst) {
       mgr.refresh();
       markersDone = true;
       if (largestAirport) {
-        mapObj.setCenter(largestAirport, zoomFunc(8 - size, 3));
+        mapObj.setCenter(largestAirport, zoomFunc(8 - largestAirportSize, 3));
       }
       $.log('Finished loading markers');
       return false;
     }
     var point = points[i];
     var size = point['NumRunways'];
+    var zoom = zoomFunc(8 - size, 3)
     var pos = new GLatLng(point['Latitude'], point['Longitude']);
-    var marker = new AetherMarker(pos);
+    var marker = new AetherMarker(pos, {id: point['ID']});
+    allMarkers[point['ID']] = [pos, zoom];
     if (size > largestAirportSize) {
       largestAirport = pos;
       largestAirportSize = size;
     }
-    mgr.addMarker(marker, zoomFunc(8 - size, 3));
+    mgr.addMarker(marker, zoom);
     i++;
     return true;
   });
