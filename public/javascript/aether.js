@@ -182,8 +182,6 @@ function setupHandlers_() {
       id = id.split('-')[1];
       var pos = allMarkers[id];
       if (pos) {
-        mapObj.panTo(pos[0]);
-        mapObj.setZoom(pos[1]);
         GEvent.trigger(
             markerManager.getMarker(pos[0].lat(), pos[0].lng(), pos[1]),
             'click');
@@ -340,7 +338,7 @@ function updateMap_(points, routes, opt_clearFirst) {
   
   var i = 0;
   var length = points.length;
-  var zoomFunc = length > 100 ? $.max : $.min;
+  var zoomFunc = length > 150 ? $.max : $.min;
   var centroidLat = 0;
   var centroidLng = 0;
   var validCentroid = false;
@@ -365,7 +363,7 @@ function updateMap_(points, routes, opt_clearFirst) {
               
     var point = points[i];
     var size = point['NumRunways'];
-    var zoom = length > 100 ? zoomFunc(8 - size, 3) : 0;
+    var zoom = zoomFunc(7 - size, 0);
     var pos = new GLatLng(point['Latitude'], point['Longitude']);
     var marker = new AetherMarker(pos, {id: point['ID'], icon: airportIcon});
     addClickHandler_(marker);
