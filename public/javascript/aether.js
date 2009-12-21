@@ -337,17 +337,22 @@ function updateMap_(points, routes, opt_clearFirst) {
   var zoomFunc = length > 100 ? $.max : $.min;
   var centroidLat = 0;
   var centroidLng = 0;
+  var validCentroid = false;
   var bounds = new GLatLngBounds();
   $.log('markers');
   $.doTimeout('placeMarkers', 0, function() {
     if (i >= length) {
       mgr.refresh();
       markersDone = true;
-      var center = new GLatLng(centroidLat/length, centroidLng/length);
-      var avgZoom = $.clamp(mapObj.getBoundsZoomLevel(bounds), 3, 10);
+      var center = mapObj.getCenter();
+      var zoom = mapObj.getZoom();
+      if(validCentroid) {
+          zoom = $.clamp(mapObj.getBoundsZoomLevel(bounds), 3, 10);
+          center = new GLatLng(centroidLat/length, centroidLng/length);
+      }
       $.log($.validator.format('Centroid: ({0}, {1}), Zoom: {2}', center.lat(),
           center.lng(), avgZoom));
-      mapObj.setCenter(center, avgZoom);
+      mapObj.setCenter(center, zoom);
       $.log('Finished loading markers');
       return false;
     }
@@ -362,7 +367,7 @@ function updateMap_(points, routes, opt_clearFirst) {
     allMarkers[point['ID']] = [pos, zoom];
     centroidLat += pos.lat();
     centroidLng += pos.lng();
-    
+    validCentroid = true;
     bounds.extend(pos);
     
     mgr.addMarker(marker, zoom);
