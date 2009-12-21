@@ -322,12 +322,13 @@ END //
 DROP PROCEDURE IF EXISTS dijkstraPrice //
 CREATE PROCEDURE dijkstraPrice(IN fromAirportID INT, IN toAirportID INT)
 BEGIN
-  DECLARE vFromID, vToID, vID, vPathID INT;
+  DECLARE vFromID, vToID, vID, vPathID, vSrcRunways, vDestRunways INT;
   DECLARE vFromCity, vToCity, vEquipment VARCHAR(255);
   DECLARE vAirline VARCHAR(3);
   DECLARE vSource, vDest VARCHAR(4);
   DECLARE vCodeshare CHAR(1);
   DECLARE vTicketPrice, vCost FLOAT UNSIGNED;
+  DECLARE vSrcLat, vSrcLong, vDestLat, vDestLong DECIMAL(12,9);
   -- null out path info in the Airports table
   UPDATE Airports SET PathID = NULL, Cost = NULL, Calculated = 0;
   -- find IDs referenced by input params
