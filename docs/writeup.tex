@@ -12,9 +12,9 @@
 \tableofcontents
 
 \section{Project Description}
-	We have developed a system, aether, that allows users to make queries for information about international air travel. We currently support queries regarding airlines, airports, and routes as well as airplanes used by the various airlines.
+	We have developed a system, aether, that allows users to make queries for information about international air travel. We currently support queries regarding airlines, airports, and routes flown by the various airlines.
 		
-\indent Aether is hosted at \url{aether.acm.jhu.edu}.
+\indent Aether is publicly available at \url{aether.acm.jhu.edu}.
 
 \section{Database Design}
 	The database has the following structure:
@@ -59,7 +59,6 @@ CREATE TABLE Routes (
     Dest VARCHAR(4),
     DestID INT(11),
     Codeshare CHAR(1),
-    Stops INT(11),
     Equipment VARCHAR(255),
     TicketPrice FLOAT UNSIGNED,
     International CHAR(1)
@@ -67,14 +66,14 @@ CREATE TABLE Routes (
 \end{verbatim}
 
 \section{Database Population}
-	The core database information on airports, airlines, and routes was loaded with information from CSV files available from \url{www.openflights.org}, and AirlineRouteMapper (\url{arm.64hosts.com}). Additional information giving the number of runways at each airport was extracted from \mbox{\url{www.ourairports.com}}. The total data inserted into the database can be seen in the included aetherdb.sql file.
+	The core database information on airports, airlines, routes, and equipment was loaded with information extracted and modified from CSV files available from \url{www.openflights.org}, and AirlineRouteMapper (\url{arm.64hosts.com}). Additional information giving the number of runways at each airport was extracted from \mbox{\url{www.ourairports.com}}. The total data inserted into the database can be seen in the included aetherdb.sql file.
 
-\indent As this data set was fairly dirty, a large amount of effort was spent cleaning it appropriately, i.e. ensuring that all airports and airlines had either a valid IATA or ICAO code and each route's origin and destination airports were contained in the database. Thus, 3,854 airlines without a valid IATA or ICAO code, three airlines without a valid callsign, and 70 airports without a valid IATA or ICAO code were deleted from the database. A large number of airports with no inbound or outbound routes exist in the database, but the query for their removal proved to be prohibitively costly to run, and since these airports are all well-formed, their presence does not interfere with query processing.
+\indent As this data set was fairly dirty, a large amount of effort was spent cleaning it appropriately, namely, ensuring that all airports and airlines had either a valid IATA or ICAO code and each route's origin and destination airports were contained in the database. Thus, 3,854 airlines without a valid IATA or ICAO code, three airlines without a valid call sign, and 70 airports without a valid IATA or ICAO code were deleted from the database. A large number of airports with no inbound or outbound routes exist in the database, but the query for their removal proved to be prohibitively costly to run, and since these airports are all well-formed, their presence does not interfere with query processing.
 	
 \indent A heuristic algorithm was generated to populate the route information with approximate ticket prices: 
 \begin{verbatim}
-CREATE FUNCTION TicketPrice(dist FLOAT, stops INT, startRunways INT,
-                endRunways INT) RETURNS FLOAT DETERMINISTIC
+CREATE FUNCTION TicketPrice(dist FLOAT, stops INT, startRunways
+                INT, endRunways INT) RETURNS FLOAT DETERMINISTIC
 BEGIN
     RETURN ((dist*0.9) / LOG((stops+2)*100)) + 100 - 40*(stops)
            - endRunways*8 - startRunways*5;
@@ -94,19 +93,26 @@ US Airways, John F. Kennedy International Airport to
 Any flight with the same departure and arrival airports but with with a layover (not shown) is understandably cheaper.
 
 \section{Architecture}
-Aether is implemented as a web interface constructed with HTML/CSS/JavaScript over a Ruby backend and a MySQL database. It implements the Google Maps API, and uses Sinatra to handle URLs and interface with the database. The site is served in development mode by Mongrel or WebBrick. In production, the site is deployed using the fantastic Capistrano tool, and served by Apache via mod\_rails (Phusion Passenger).
+Aether is implemented as a web interface constructed with HTML/CSS/
+JavaScript over a Ruby backend and a MySQL database. It implements the Google Maps API, and uses Sinatra to handle URLs and interface with the database. The site is served in development mode by Mongrel or WebBrick. In production, the site is deployed using the fantastic Capistrano tool, and served by Apache via mod\_rails (Phusion Passenger).
 
-\subsection{Stored Procedures}
+\subsection{Backend}
+
+\subsubsection{Stored Procedures}
 MySQL stored procedures were created to handle requests from the web interface and return result sets to Ruby, which were then filtered, organized, and returned to the client as JSON. The full list of stored procedures implemented can be seen in the included StoredProcedures.txt.
 
 \subsubsection{Dijkstra's Algorithm}
 The algorithm for both cheapest flight and shortest path is an adaptation of Dijkstra's shortest-path algorithm to the structure of our database and the constraints of MySQL. The implementation of both procedures can be seen in the included StoredProcedures.txt.  The query requires approximately 90 seconds to calculate the shortest path through 5,425 nodes and 54,000 edges, quite impressive performance. Credit to Peter Larsson for the original SQL algorithm (\mbox{\url{http://www.sqlteam.com/forums/topic.asp?TOPIC_ID=772620}}).
 
-\subsection{Front end}
+\subsection{Front End}
 Something about front ends...I'll write this Saturday (-z).
+
+\subsubsection{User Interface}
+Using the Google Maps API, impressive user-interface functionality was able to be implemented in a short time. JQuery UI 1.7.2 provided a template for the accordion menu on the left, allowing the user to select which queries to run on the database. The dialog messages that appear were also provided as part of JQuery UI. The results table was implemented on top of TableSorter 2.0, which provided the sorting and pagination functionality, and supplemented with click listeners to trigger the marker popups in the map area. Clicking on a row or a marker in the map area triggers a database request for information on the appropriate airport, which is displayed in the marker popup.
 
 \section{Installation}
 The following documents how to get aether up and running locally. We assume a working installation of Ruby and RubyGems, along with a working MySQL database available.
+
 \subsection{Requirements}
 \begin{enumerate}
   \item Ruby 1.8.6, Rubygems
@@ -115,7 +121,7 @@ The following documents how to get aether up and running locally. We assume a wo
   \item The following gems: mysql, sinatra, haml, sass, compass, json. To install:
   \begin{verbatim}
     ~ $ sudo gem install mysql sinatra haml sass compass json
-    ~ $ # Insure MySQL gem is working:
+    ~ $ # Ensure MySQL gem is working:
     ~ $ irb <Enter>
     >> require `mysql'
     => true
@@ -124,18 +130,22 @@ The following documents how to get aether up and running locally. We assume a wo
   \end{verbatim}
   \item Optional gems: shotgun, capistrano (\verb!sudo gem install shotgun capistrano!)
 \end{enumerate}
-\subsection{Checking out the code and data}
+
+\subsection{Checking Out Code and Data}
 \begin{verbatim}
   ~ $ git clone git://github.com/ziegs/aether.git
   ... wait ...
   ~ $ cd aether
 \end{verbatim}
-\subsection{Importing data}
+
+\subsection{Importing Data}
 Create a database in the MySQL server. These instructions assume the name \verb!aether_dev!. The following commands import the data and stored procedures, respectively.
 \begin{verbatim}
 ~ $ cd /path/to/aether
-~ $ mysql -u username -p -h dbase.server aether_dev < data/aetherdb.sql
-~ $ mysql -u username -p -h dbase.server aether_dev < docs/StoredProcedures.txt
+~ $ mysql -u username -p -h dbase.server aether_dev 
+    < data/aetherdb.sql
+~ $ mysql -u username -p -h dbase.server aether_dev
+    < docs/StoredProcedures.txt
 \end{verbatim}
 Next, create a file in the \verb!config! directory called \verb!db.rb!. The contents should look like the following code block. All fields are required.
 \begin{verbatim}
@@ -147,14 +157,15 @@ Next, create a file in the \verb!config! directory called \verb!db.rb!. The cont
     :port => 3306
   }
 \end{verbatim}
-\subsection{Running the server}
+
+\subsection{Running the Server}
 You have two options. The best option for development is option one below using shotgun, the other option is to use ruby.
 \begin{enumerate}
-  \item Shotgun\footnote{To use shotgun, you will need to {\tt sudo gem install shotgun}}
+  \item Shotgun\footnote{{\tt sudo gem install shotgun}}
   \begin{verbatim}
 ~ $ cd /path/to/aether
 ~ $ ./aether_dev
-  \end{verbatim}
+  \end{verbatim} 
   \item Ruby
   \begin{verbatim}
 ~ $ cd /path/to/aether
@@ -162,8 +173,9 @@ You have two options. The best option for development is option one below using 
   \end{verbatim}
 \end{enumerate}
 The server will now be running on port 4567. Navigate to http://localhost:4567 and start playing! Using shotgun is slightly slower, but it will automatically refresh the server if the ruby code changes. If you use option two and make changes to \verb!aether.rb!, you will need to manually restart the server (using C-c to kill it first).
-\subsection{Deploying to a production environment}
-We use capistrano\footnote{You will need to install capistrano, use {\tt sudo gem install capistrano}.} (www.capify.org) to simplify deployment. To deploy, ensure you have access to a webserver with Phusion Passenger (mod\_rails), Apache2, and git. Modify the file \verb!config/deploy.rb! to point to the right paths and servers, then type:
+
+\subsection{Deploying to a Production Environment}
+We use capistrano\footnote{{\tt sudo gem install capistrano}.} (www.capify.org) to simplify deployment. To deploy, ensure you have access to a webserver with Phusion Passenger (mod\_rails), Apache2, and git. Modify the file \verb!config/deploy.rb! to point to the right paths and servers, then type:
 \begin{verbatim}
   ~ $ cap deploy:check
   ~ $ cap deploy:setup

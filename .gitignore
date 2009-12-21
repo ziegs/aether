@@ -6,4 +6,5 @@ public/images/*.psd
 config/db.rb
 docs/*.log
 docs/*.aux
+docs/*.toc
 docs/*.out

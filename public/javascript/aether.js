@@ -182,7 +182,7 @@ function setupHandlers_() {
       id = id.split('-')[1];
       var pos = allMarkers[id];
       if (pos) {
-        mapObj.setCenter(pos[0]);
+        mapObj.panTo(pos[0]);
         mapObj.setZoom(pos[1]);
         GEvent.trigger(
             markerManager.getMarker(pos[0].lat(), pos[0].lng(), pos[1]),
@@ -233,6 +233,8 @@ function dataReceivedCallback_(data) {
   $.doTimeout('checkCompleteness', 200, function() {
     if (tablesDone && markersDone) {
       $('#loading').fadeOut('normal');
+      $('#progress').fadeOut('normal');
+      $('#progress').progressbar({value: 0});
       return false;
     } else if (tablesDone){
       $.log('tables done but not markers');
@@ -263,6 +265,7 @@ function extractHeaders_(record) {
 function updateTable_(headers, records) {
   tablesDone = false;
   $('#progress').progressbar({value: 0});
+  $('#progress').fadeIn('normal');
   var tbl = $('<table id="data" class="tablesorter"></table>');
   if (headers.length > 0) {
     var header = '<thead><tr>';
@@ -286,7 +289,7 @@ function updateTable_(headers, records) {
         rowCache = "";
         $('#data').tablesorter({widthFixed: true});
         $.log('Setting up paginator...');
-        var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > select').val()};
+        var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > selected').val()};
         $('#data').tablesorterPager(pagerOpts);
         $.log('...pagination complete');
         $('#pager').fadeIn();
@@ -426,16 +429,4 @@ function addClickHandler_(marker) {
       marker.openInfoWindowHtml(infostr);
     });
   });
-};
-
-// REMOVE EVENTUALLY
-function toyData() {
-  var data = {
-    'records': [{'Name': 'LaGuardia', 'IATA': 'LGA', 'City': 'New York', 'Country': 'United States'},
-                {'Name': 'Dallas-Ft. Worth', 'IATA': 'DFW', 'City': 'Dallas/Ft. Worth', 'Country': 'United States'}],
-    'map_points': [{'ID': 3697, 'Latitude': 40.777245, 'Longitude': -73.872608},
-            {'ID': 3670, 'Latitude': 32.896828, 'Longitude': -97.037997}],
-    'map_routes': [{'srcLat': 40.777245, 'srcLong': -73.872608, 'destLat': 32.896828, 'destLong': -97.037997}]
-  };
-  dataReceivedCallback_(data);
 };
