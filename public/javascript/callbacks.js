@@ -20,13 +20,13 @@ function allAirportsInCountryCallback_(dialog) {
       '</form>';
   var callback = function() {
     var country = $('#p1').val();
-    (new GClientGeocoder()).getLatLng(
-        country, function(point) {
-          if (point) {
-            mapObj.setCenter(point, 5);
-          }
-        });
-        makeRequestAndUpdate('AllAirportsInCountry', {'p1': country})
+    // (new GClientGeocoder()).getLatLng(
+    //         country, function(point) {
+    //           if (point) {
+    //             mapObj.setCenter(point, 5);
+    //           }
+    //         });
+    makeRequestAndUpdate('AllAirportsInCountry', {'p1': country});
   };
   makeRequestDialog(dialog, 'Airports in Country', content, callback);
   $('#p1').focus().autocomplete('/autofill', {

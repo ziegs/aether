@@ -205,6 +205,7 @@ function makeRequestAndUpdate(query, data) {
   data['id'] = queries[query] || '';
   if (!!query) {
     $('#loading').fadeIn();
+    $('#loading #status').text('Querying...');
     $.getJSON('/ar', data, dataReceivedCallback_);
   }
 };
@@ -216,6 +217,7 @@ function makeRequestAndUpdate(query, data) {
  */
 function dataReceivedCallback_(data) {
   var headers = [];
+  $('#loading #status').text('Processing results...');
   if (data.records && data.records.length != 0) {
     headers = extractHeaders_(data.records[0]);
   }
@@ -235,6 +237,10 @@ function dataReceivedCallback_(data) {
       $('#loading').fadeOut('normal');
       $('#progress').fadeOut('normal');
       $('#progress').progressbar({value: 0});
+      if (points.length == 0 && routes.length == 0 && records.length == 0) {
+        $('#data').text('No results found');
+        $('#data').fadeIn('Fast');
+      }
       return false;
     } else if (tablesDone){
       $.log('tables done but not markers');
@@ -343,11 +349,15 @@ function updateMap_(points, routes, opt_clearFirst) {
     if (i >= length) {
       mgr.refresh();
       markersDone = true;
-      var center = new GLatLng(centroidLat/length, centroidLng/length);
-      var avgZoom = $.clamp(mapObj.getBoundsZoomLevel(bounds), 3, 10);
-      $.log($.validator.format('Centroid: ({0}, {1}), Zoom: {2}', center.lat(),
-          center.lng(), avgZoom));
-      mapObj.setCenter(center, avgZoom);
+      var lat = centroidLat/length;
+      var lng = centroidLng/length;
+      if (lat && lng) {
+        var center = new GLatLng(lat, lng);
+        var avgZoom = $.clamp(mapObj.getBoundsZoomLevel(bounds), 3, 10);
+        $.log($.validator.format('Centroid: ({0}, {1}), Zoom: {2}', center.lat(),
+            center.lng(), avgZoom));
+        mapObj.setCenter(center, avgZoom);
+      }
       $.log('Finished loading markers');
       return false;
     }
