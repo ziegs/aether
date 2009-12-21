@@ -40,8 +40,16 @@ function allAirportsInCountryCallback_(dialog) {
 function allRoutesCallback_(dialog) {
   var buttons = {
     'Continue': function() {
-      makeRequestAndUpdate('AllRoutes', {});
-      $(this).dialog('close');
+      var buttons = {
+        'Continue': function() {
+          makeRequestAndUpdate('AllRoutes', {});
+          $(this).dialog('close');
+        },
+        Cancel: function() {
+          $(this).dialog('close');
+        }
+      };
+      makeModalDialog(dialog, 'Warning', MSG_ALL_ROUTES_QUERY, buttons);
     },
     Cancel: function() {
       $(this).dialog('close');
@@ -50,6 +58,8 @@ function allRoutesCallback_(dialog) {
   makeModalDialog(dialog, 'Warning', MSG_LONG_QUERY, buttons);
   return false;
 };
+
+
 
 function allAirlinesCallback_(dialog) {
   var buttons = {
