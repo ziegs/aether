@@ -417,13 +417,15 @@ function addClickHandler_(marker) {
       var coords = '(' + Number(data['Latitude']).toFixed(3) + ', ' +
           Number(data['Longitude']).toFixed(3) + ')';
       var codes = [data['ICAO'], data['IATA']].join(', ');
+      var runways = Number(data['NumRunways']);
       var tz = 'UTC' + (Number(data['Timezone']) >= 0 ? '+' : '') + data['Timezone'];
       var infostr = '<b>Name:</b> {0}<br />' +
           '<b>Location:</b> {1}<br />' +
           '<b>Coordinates:</b> {2}<br />' +
           '<b>Code(s):</b> {3}<br />' +
-          '<b>Timezone:</b> {4}<br />';
-      infostr = $.validator.format(infostr, name, location, coords, codes, tz);
+          '<b>Runways:</b> {4}<br />' +
+          '<b>Timezone:</b> {5}<br />';
+      infostr = $.validator.format(infostr, name, location, coords, codes, runways, tz);
       $.log(infostr);
       marker.openInfoWindowHtml(infostr);
     });
