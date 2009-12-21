@@ -340,6 +340,7 @@ function updateMap_(points, routes, opt_clearFirst) {
     var zoom = zoomFunc(8 - size, 3)
     var pos = new GLatLng(point['Latitude'], point['Longitude']);
     var marker = new AetherMarker(pos, {id: point['ID']});
+    addClickHandler_(marker);
     allMarkers[point['ID']] = [pos, zoom];
     if (size > largestAirportSize) {
       largestAirport = pos;
@@ -388,6 +389,30 @@ function makeRequestDialog(dialog, title, content, confirmCallback) {
     }
   });
   dialog.dialog('open');
+};
+
+function addClickHandler_(marker) {
+  GEvent.addListener(marker, 'click', function() {
+    $.getJSON('/ir', {qid: 'airport', aid: marker.id}, function(data) {
+      if (data == {}) {
+        return false;
+      }
+      var name = data['Name'];
+      var location = data['City'] + ', ' + data['Country'];
+      var coords = '(' + Number(data['Latitude']).toFixed(3) + ', ' +
+          Number(data['Longitude']).toFixed(3) + ')';
+      var codes = [data['ICAO'], data['IATA']].join(', ');
+      var tz = data['Timezone'];
+      var infostr = '<b>Name:</b> {0}<br />' +
+          '<b>Location:</b> {1}<br />' +
+          '<b>Coordinates:</b> {2}<br />' +
+          '<b>Code(s):</b> {3}<br />' +
+          '<b>Timezone:</b> {4}<br />';
+      infostr = $.validator.format(infostr, name, location, coords, codes, tz);
+      $.log(infostr);
+      marker.openInfoWindowHtml(infostr);
+    });
+  });
 };
 
 // REMOVE EVENTUALLY

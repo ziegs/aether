@@ -19,7 +19,14 @@ function allAirportsInCountryCallback_(dialog) {
       '<input id="p1" name="country" /><br />' +
       '</form>';
   var callback = function() {
-        makeRequestAndUpdate('AllAirportsInCountry', {'p1': $('#p1').val()})
+    var country = $('#p1').val();
+    (new GClientGeocoder()).getLatLng(
+        country, function(point) {
+          if (point) {
+            mapObj.setCenter(point, 5);
+          }
+        });
+        makeRequestAndUpdate('AllAirportsInCountry', {'p1': country})
   };
   makeRequestDialog(dialog, 'Airports in Country', content, callback);
   $('#p1').focus().autocomplete('/autofill', {
