@@ -335,23 +335,19 @@ function updateMap_(points, routes, opt_clearFirst) {
   var i = 0;
   var length = points.length;
   var zoomFunc = length > 100 ? $.max : $.min;
-  var largestAirport = null;
-  var largestAirportSize = -500;
   var centroidLat = 0;
   var centroidLng = 0;
-  var avgZoom = 0;
+  var bounds = new GLatLngBounds();
   $.log('markers');
   $.doTimeout('placeMarkers', 0, function() {
     if (i >= length) {
       mgr.refresh();
       markersDone = true;
       var center = new GLatLng(centroidLat/length, centroidLng/length);
-      avgZoom = $.clamp(Math.ceil(avgZoom/length), 3, 5);
-      $.log($.validator.format('Centroid: ({0}, {1}), Zoom: {2}', center.lat(), center.lng(), avgZoom));
+      var avgZoom = mapObj.getBoundsZoomLevel(bounds);
+      $.log($.validator.format('Centroid: ({0}, {1}), Zoom: {2}', center.lat(),
+          center.lng(), avgZoom));
       mapObj.setCenter(center, avgZoom);
-      // if (largestAirport) {
-      //        mapObj.setCenter(largestAirport, $.clamp(zoomFunc(8 - largestAirportSize, 3), 3, 10));
-      //      }
       $.log('Finished loading markers');
       return false;
     }
@@ -366,7 +362,9 @@ function updateMap_(points, routes, opt_clearFirst) {
     allMarkers[point['ID']] = [pos, zoom];
     centroidLat += pos.lat();
     centroidLng += pos.lng();
-    avgZoom += zoom;
+    
+    bounds.extend(pos);
+    
     mgr.addMarker(marker, zoom);
     i++;
     return true;
