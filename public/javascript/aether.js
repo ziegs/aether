@@ -289,7 +289,7 @@ function updateTable_(headers, records) {
         rowCache = "";
         $('#data').tablesorter({widthFixed: true});
         $.log('Setting up paginator...');
-        var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager > selected').val()};
+        var pagerOpts = {container: $("#pager"), positionFixed: false, size: $('#pager select').val()};
         $('#data').tablesorterPager(pagerOpts);
         $.log('...pagination complete');
         $('#pager').fadeIn();
