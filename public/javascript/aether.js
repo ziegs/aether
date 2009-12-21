@@ -220,7 +220,9 @@ function dataReceivedCallback_(data) {
 function extractHeaders_(record) {
   var headers = [];
   $.each(record, function(key, value) {
-      headers.push(key);
+      if (key != 'ID') {
+        headers.push(key);
+      }
   });
   return headers;
 };
@@ -236,8 +238,9 @@ function updateTable_(headers, records) {
   var tbl = $('<table id="data" class="tablesorter"></table>');
   if (headers.length > 0) {
     var header = '<thead><tr>';
+    header += '<th class="id">id</th>'
     $.each(headers, function(i, name) {
-      header += '<th class="header">' + name + '</td>';
+      header += '<th class="header">' + name + '</th>';
     });
     header += '</tr></thead>';
     tbl.append(header);
@@ -266,6 +269,11 @@ function updateTable_(headers, records) {
       };
       var trClass = i % 2 == 0 ? 'even' : 'odd';
       rowCache += '<tr class="' + trClass + '">';
+      if (records[i]['ID']) {
+        rowCache += '<td class="id">' + records[i]['ID'] + '</td>';
+      } else {
+        rowCache += '<td class="id"></td>';
+      }
       $.each(headers, function(x, name) {
         rowCache += '<td>' + records[i][name] + '</td>';
       });
@@ -313,7 +321,7 @@ function updateMap_(points, routes, opt_clearFirst) {
     var point = points[i];
     var size = point['NumRunways'];
     var pos = new GLatLng(point['Latitude'], point['Longitude']);
-    var marker = new GMarker(pos);
+    var marker = new AetherMarker(pos);
     if (size > largestAirportSize) {
       largestAirport = pos;
       largestAirportSize = size;
