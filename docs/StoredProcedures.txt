@@ -127,7 +127,7 @@ END//
 DROP PROCEDURE IF EXISTS AirportDistance//
 CREATE PROCEDURE AirportDistance(IN airport1 INT, IN airport2 INT)
 BEGIN
-	SELECT A1.ID, A1.Name, A1.City, A1.Country, A1.IATA, A1.ICAO, A2.ID AS ID2, A2.Name AS Name2, A2.City AS City2, A2.Country AS Country2, A2.IATA AS IATA2, A2.ICAO AS ICAO2, AirportDistanceF(airport1, airport2) AS Distance FROM Airports A1, Airports A2 WHERE A1.ID = airport1 AND A2.ID = airport2;
+	SELECT A1.ID, A1.Name, A1.City, A1.Country, A1.IATA, A1.ICAO, A2.Name AS Name2, A2.City AS City2, A2.Country AS Country2, A2.IATA AS IATA2, A2.ICAO AS ICAO2, AirportDistanceF(airport1, airport2) AS Distance FROM Airports A1, Airports A2 WHERE A1.ID = airport1 AND A2.ID = airport2;
 	SELECT ID, Latitude, Longitude, NumRunways FROM Airports A1 WHERE A1.ID = airport1 OR A1.ID = airport2;
 	SELECT A1.Latitude AS srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2 WHERE A1.ID = airport1 AND A2.ID = airport2;
 END//
@@ -136,7 +136,7 @@ END//
 DROP PROCEDURE IF EXISTS AirportTimeDifference//
 CREATE PROCEDURE AirportTimeDifference(IN Airport1 INT, IN Airport2 INT)
 BEGIN
-	SELECT A1.ID, A1.Name, A1.City, A1.Country, A1.IATA, A1.ICAO, A2.ID AS ID2, A2.Name AS Name2, A2.City AS City2, A2.Country AS Country2, A2.IATA AS IATA2, A2.ICAO AS ICAO2, A2.Timezone - A1.Timezone as TimeDifference FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2;
+	SELECT A1.ID, A1.Name, A1.City, A1.Country, A1.IATA, A1.ICAO, A2.Name AS Name2, A2.City AS City2, A2.Country AS Country2, A2.IATA AS IATA2, A2.ICAO AS ICAO2, A2.Timezone - A1.Timezone as TimeDifference FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2;
 	SELECT DISTINCT ID, Latitude, Longitude, NumRunways FROM Airports WHERE ID = Airport1 OR ID = Airport2;
 	SELECT A1.Latitude AS srcLat, A1.Longitude as srcLong, A2.Latitude as destLat, A2.Longitude as destLong FROM Airports A1, Airports A2 WHERE A1.ID = Airport1 AND A2.ID = Airport2;
 END//
