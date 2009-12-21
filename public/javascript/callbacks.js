@@ -332,7 +332,7 @@ function cheapestFlightCallback_(dialog) {
     }
   };
   
-  makeModalDialog(dialog, 'Warning', MSG_LONG_QUERY, buttons);
+  makeModalDialog(dialog, 'Warning', MSG_DIJKSTRA_QUERY, buttons);
   return false;
 }
 
@@ -376,7 +376,7 @@ function shortestFlightCallback_(dialog) {
     }
   };
   
-  makeModalDialog(dialog, 'Warning', MSG_LONG_QUERY, buttons);
+  makeModalDialog(dialog, 'Warning', MSG_DIJKSTRA_QUERY, buttons);
   return false;
 }
 
