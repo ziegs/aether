@@ -17,6 +17,9 @@ var MSG_LONG_QUERY = 'This query may take more than a minute to run and may retu
     'a large amount of data. If you wish to continue, press continue. Otherwise, ' +
     'please click cancel.';
 
+var MSG_ALL_ROUTES_QUERY = 'Seriously, this query consistently crashes our browsers. ' +
+    'Proceed at your own risk!';
+
 var MSG_DIJKSTRA_QUERY = 'This query uses Dijkstra\'s algorithm on a huge data set. ' +
     'It may take several minutes to return a result. If you wish to continue, ' +
     'press continue. Otherwise, please click cancel.';
@@ -335,11 +338,14 @@ function updateMap_(points, routes, opt_clearFirst) {
       $.log('Finished loading markers');
       return false;
     }
+              
     var point = points[i];
     var size = point['NumRunways'];
     var zoom = zoomFunc(8 - size, 3)
     var pos = new GLatLng(point['Latitude'], point['Longitude']);
-    var marker = new AetherMarker(pos, {id: point['ID']});
+    var marker = new AetherMarker(pos, {id: point['ID'], icon:airportIcon});
+   
+          
     allMarkers[point['ID']] = [pos, zoom];
     if (size > largestAirportSize) {
       largestAirport = pos;
