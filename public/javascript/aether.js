@@ -180,6 +180,9 @@ function setupHandlers_() {
       if (pos) {
         mapObj.setCenter(pos[0]);
         mapObj.setZoom(pos[1]);
+        GEvent.trigger(
+            markerManager.getMarker(pos[0].lat(), pos[0].lng(), pos[1]),
+            'click');
       }
     }
   });
@@ -407,7 +410,7 @@ function addClickHandler_(marker) {
       var coords = '(' + Number(data['Latitude']).toFixed(3) + ', ' +
           Number(data['Longitude']).toFixed(3) + ')';
       var codes = [data['ICAO'], data['IATA']].join(', ');
-      var tz = data['Timezone'];
+      var tz = 'UTC' + (Number(data['Timezone']) >= 0 ? '+' : '') + data['Timezone'];
       var infostr = '<b>Name:</b> {0}<br />' +
           '<b>Location:</b> {1}<br />' +
           '<b>Coordinates:</b> {2}<br />' +
