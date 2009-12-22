@@ -1,3 +1,9 @@
+Code can always be downloaded at http://github.com/ziegs/aether.
+
+Current site version can be found at http://aether.acm.jhu.edu.
+
+Final writeup for 600.415 is in docs/writeup.pdf.
+
 Run 'ruby aether.rb', connect to 'localhost:4567'.
 
 index.haml handles generating html
